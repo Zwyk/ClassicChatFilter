@@ -72,8 +72,8 @@ function SlashHandler()
 end
 
 function cf:VARIABLES_LOADED()
-	InitSavedGlobal()
-	InitSavedChar()
+	--InitSavedGlobal()
+	--InitSavedChar()
 end
 
 function cf:ADDON_LOADED(addon)
@@ -81,6 +81,9 @@ function cf:ADDON_LOADED(addon)
 		SlashCmdList["CHATFILTER"] = SlashHandler;
 		SLASH_CHATFILTER1 = "/chatfilter";
 		SLASH_CHATFILTER2 = "/cf";
+		print("render")
+		InitSavedGlobal()
+		InitSavedChar()
 		RenderOptions()
     end
 end
