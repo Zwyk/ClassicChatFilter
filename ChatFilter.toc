@@ -5,7 +5,9 @@
 ## Notes: Chat Filter
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## SavedVariables: ChatFilter_SavedGlobal
-## SavedVariablesPerCharacter: ChatFilter_SavedChar
+## SavedVariables: SavedGlobal
+## SavedVariablesPerCharacter: SavedChar
 ## X-Curse-Project-ID: 325069
 ChatFilter.lua
+Libs\LibStub\LibStub.lua
+Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
