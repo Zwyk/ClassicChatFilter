@@ -1,53 +1,48 @@
---[[
-		=== TODO ===
-	- Fenetre config (+ slash ?)
-]]--
-
 defaultProfile =
 {
 	["show_player_messages"] = true,
-	["show_player_mentions"] = false,
-	["raids"] = {},
-	["dungeons"] = {},
-	["roles"] = {},
-	["banned"] = {},
+	["show_player_mentions"] = true,
 	["channels"] = {"world","LookingForGroup"},
+	["banned"] = {},
+	["dungeons"] = {},
+	["dungeons_roles"] = {},
+	["raids"] = {},
+	["raids_roles"] = {},
 }
 
 exampleProfie =
 {
 	["show_player_messages"] = true,
-	["raids"] = {
-		"molten", -- [1]
-		"mc", -- [2]
-		"ony", -- [3]
-	},
+	["show_player_mentions"] = true,
 	["channels"] = {
 		"world", -- [1]
 		"LookingForGroup", -- [2]
-		"testfilter", -- [3]
 	},
-	["show_player_mentions"] = true,
 	["banned"] = {
 		"WTS", -- [1]
 		"www", -- [2]
 	},
-	["roles"] = {
-		"tank", -- [1]
-		"war", -- [2]
-	},
 	["dungeons"] = {
 		"scholo", -- [1]
 		"strat", -- [2]
-		"ubrs", -- [3]
+	},
+	["dungeons_roles"] = {
+		"tank", -- [1]
+	},
+	["raids"] = {
+		"onyxia", -- [3]
+	},
+	["raids_roles"] = {
+		"tank", -- [1]
+		"dps", -- [2]
 	},
 }
 
 savedGlobalDefault =
 {
 	["profiles"] = {
-		["Example"] = exampleProfie,
 		["Default"] = defaultProfile,
+		["Example"] = exampleProfie,
 	},
 }
 
@@ -58,6 +53,7 @@ savedCharDefault =
 }
 
 local version = "1.0"
+local addonStr = "|cff009674ChatFilter|cffffffff"
 
 local cf = CreateFrame("Frame", addonName);
 local pname, pserver = UnitName("player");
@@ -67,8 +63,30 @@ cf:RegisterEvent("ADDON_LOADED");
 
 cf:SetScript("OnEvent", function(self, event, arg1) self[event](self, arg1) end);
 
-function SlashHandler()
-	InterfaceOptionsFrame_OpenToCategory("ChatFilter")
+function SlashHandler(arg)
+	if(arg == "help") then
+		print(addonStr.." available commands :")
+		print("/cf or /chatfilter to open the configuration panel.")
+		print("/cf disable to temporarily disable the addon.")
+		print("/cf enable to re-enable the addon.")
+		print("/cf toggle to toggle between enable and disable (useful for macros).")
+	elseif(arg == "enable") then
+		SavedChar.enabled = true
+		RefreshValues()
+		print(addonStr.." has been re-enabled.")
+	elseif(arg == "disable") then
+		SavedChar.enabled = true
+		RefreshValues()
+		print(addonStr.." has been temporarily disabled.")
+	elseif(arg == "toggle") then
+		SavedChar.enabled = not SavedChar.enabled
+		RefreshValues()
+		print(addonStr.." has been toggled "..((SavedChar.enabled and "ON") or "OFF"))
+	else
+		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
+		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
+		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
+	end
 end
 
 function cf:VARIABLES_LOADED()
@@ -77,15 +95,29 @@ function cf:VARIABLES_LOADED()
 end
 
 function cf:ADDON_LOADED(addon)
-    if (addon == "ChatFilter") then
+    if(addon == "ChatFilter") then
 		SlashCmdList["CHATFILTER"] = SlashHandler;
 		SLASH_CHATFILTER1 = "/chatfilter";
 		SLASH_CHATFILTER2 = "/cf";
-		print("render")
 		InitSavedGlobal()
 		InitSavedChar()
+		CheckDefault()
+		CheckProfile()
 		RenderOptions()
+		print("|cff009674ChatFilter v"..version.." loaded. |cffffffffType /cf to configure.")
     end
+end
+
+function CheckProfile()
+	if(not SavedGlobal["profiles"][SavedChar["profile"]]) then
+		SavedChar["profile"] = "Default"
+	end
+end
+
+function CheckDefault()
+	if(not SavedGlobal["profiles"]["Default"]) then
+		SavedGlobal["profiles"]["Default"] = defaultProfile
+	end
 end
 
 function InitSavedGlobal()
@@ -128,6 +160,56 @@ function InitSavedChar()
 	end
 end
 
+StaticPopupDialogs["CHATFILTER_PROFILE_RENAME"] = {
+	text = "Rename profile",
+	button1 = OKAY,
+	button2 = CANCEL,
+	OnShow = function(self)
+		self.editBox:SetScript("OnEnterPressed", function()
+			RenameProfile(self.editBox:GetText())
+			StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+		end)
+		self.editBox:SetScript("OnEscapePressed", function()
+			StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+		end)
+	end,
+	OnAccept = function(self)
+		RenameProfile(self.editBox:GetText())
+		StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+	end,
+	hasEditBox = true,
+	timeout = 0,
+	exclusive = 0,
+	showAlert = 1,
+	whileDead = 1,
+	hideOnEscape = 1
+}
+
+StaticPopupDialogs["CHATFILTER_PROFILE_COPY"] = {
+	text = "New copied profile",
+	button1 = OKAY,
+	button2 = CANCEL,
+	OnShow = function(self)
+		self.editBox:SetScript("OnEnterPressed", function()
+			CopyProfile(self.editBox:GetText())
+			StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+		end)
+		self.editBox:SetScript("OnEscapePressed", function()
+			StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+		end)
+	end,
+	OnAccept = function(self)
+		CopyProfile(self.editBox:GetText())
+		StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+	end,
+	hasEditBox = true,
+	timeout = 0,
+	exclusive = 0,
+	showAlert = 1,
+	whileDead = 1,
+	hideOnEscape = 1
+}
+
 StaticPopupDialogs["CHATFILTER_PROFILE_ADD"] = {
 	text = "New profile",
 	button1 = OKAY,
@@ -138,7 +220,6 @@ StaticPopupDialogs["CHATFILTER_PROFILE_ADD"] = {
 			StaticPopup_Hide("CHATFILTER_PROFILE_ADD")
 		end)
 		self.editBox:SetScript("OnEscapePressed", function()
-			CreateProfile(self.editBox:GetText())
 			StaticPopup_Hide("CHATFILTER_PROFILE_ADD")
 		end)
 	end,
@@ -175,12 +256,13 @@ function RenderOptions()
 	local enabledPos = headerPos - 15
 	local profilesPos = enabledPos - 50
 	local pmessagesPos = profilesPos - 25
-	local pmentionsPos = pmessagesPos - 20
-	local channelsPos = pmentionsPos - 30
-	local bannedPos = channelsPos - 50
-	local rolesPos = bannedPos - 50
-	local dungeonsPos = rolesPos - 50
-	local raidsPos = dungeonsPos - 50
+	local pmentionsPos = pmessagesPos - 15
+	local channelsPos = pmentionsPos - 25
+	local bannedPos = channelsPos - 45
+	local dungeonsPos = bannedPos - 45
+	local dungeonsRolesPos = dungeonsPos - 45
+	local raidsPos = dungeonsRolesPos - 45
+	local raidsRolesPos = raidsPos - 45
 
 	local options = CreateFrame("FRAME","cf_options");
 	options.name = "ChatFilter";
@@ -197,11 +279,10 @@ function RenderOptions()
 	ver:SetTextColor(0.5,0.5,0.5);
 	ver:SetText("v"..version);
 
-	local enabledButton = CreateFrame("CheckButton", "cf_enabledButton", options, "ChatConfigCheckButtonTemplate");
+	enabledButton = CreateFrame("CheckButton", "cf_enabledButton", options, "ChatConfigCheckButtonTemplate");
 	enabledButton:SetPoint("TOPLEFT", leftMargin, enabledPos)
 	enabledButton.tooltip = "Enable the ChatFilter addon.";
 	_G[enabledButton:GetName().."Text"]:SetText("Enabled");
-	enabledButton:SetChecked(SavedChar.enabled);
 	enabledButton:SetScript("OnClick", function(self)
 		SavedChar.enabled = self:GetChecked();
 	end)
@@ -216,10 +297,43 @@ function RenderOptions()
 	L_UIDropDownMenu_JustifyText(profilesDropDown, "LEFT");
 	profilesDropDownText.tooltip = "Select the profile to use on this character."
 
-	local newProfileButton = CreateFrame("Button", "cf_newProfileButton", options, "OptionsButtonTemplate");
+	renameProfileButton = CreateFrame("Button", "cf_renameProfileButton", options, "OptionsButtonTemplate");
+	renameProfileButton:SetWidth(25)
+	renameProfileButton:SetPoint("LEFT", profilesDropDown, "RIGHT", 0, 2);
+	renameProfileButton.tooltipText = "Rename this profile.";
+	renameProfileButton:SetScript("OnClick", function(self)
+		StaticPopup_Show("CHATFILTER_PROFILE_RENAME")
+	end);
+	_G[renameProfileButton:GetName().."Text"]:SetText("R");
+	renameProfileButton.alwaysShowTooltip = true
+	renameProfileButton.tooltipText = "Rename this profile."
+	renameProfileButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(renameProfileButton, "ANCHOR_TOPLEFT")
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine(self.tooltipText)
+		GameTooltip:Show()
+	end);
+
+	copyProfileButton = CreateFrame("Button", "cf_copyProfileButton", options, "OptionsButtonTemplate");
+	copyProfileButton:SetWidth(25)
+	copyProfileButton:SetPoint("LEFT", renameProfileButton, "RIGHT", 2, 0);
+	copyProfileButton.tooltipText = "Rename this profile.";
+	copyProfileButton:SetScript("OnClick", function(self)
+		StaticPopup_Show("CHATFILTER_PROFILE_COPY")
+	end);
+	_G[copyProfileButton:GetName().."Text"]:SetText("C");
+	copyProfileButton.alwaysShowTooltip = true
+	copyProfileButton.tooltipText = "Copy this profile to a new one."
+	copyProfileButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(copyProfileButton, "ANCHOR_TOPLEFT")
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine(self.tooltipText)
+		GameTooltip:Show()
+	end);
+
+	newProfileButton = CreateFrame("Button", "cf_newProfileButton", options, "OptionsButtonTemplate");
 	newProfileButton:SetWidth(25)
-	newProfileButton:SetPoint("LEFT", profilesDropDown, "RIGHT", 0, 2);
-	newProfileButton.tooltip = "Create a new profile";
+	newProfileButton:SetPoint("LEFT", copyProfileButton, "RIGHT", 2, 0);
 	newProfileButton:SetScript("OnClick", function(self)
 		StaticPopup_Show("CHATFILTER_PROFILE_ADD")
 	end);
@@ -233,17 +347,16 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 	
-	deleteCurrentProfileButton = CreateFrame("Button", "cf_deleteCurrentProfileButton", options, "OptionsButtonTemplate");
-	deleteCurrentProfileButton:SetWidth(25)
-	deleteCurrentProfileButton:SetPoint("LEFT", newProfileButton, "RIGHT", 2, 0);
-	deleteCurrentProfileButton.tooltip = "Delete current profile";
-	deleteCurrentProfileButton:SetScript("OnClick", function(self)
+	deleteProfileButton = CreateFrame("Button", "cf_deleteProfileButton", options, "OptionsButtonTemplate");
+	deleteProfileButton:SetWidth(25)
+	deleteProfileButton:SetPoint("LEFT", newProfileButton, "RIGHT", 2, 0);
+	deleteProfileButton:SetScript("OnClick", function(self)
 		StaticPopup_Show("CHATFILTER_PROFILE_DELETE")
 	end);
-	_G[deleteCurrentProfileButton:GetName().."Text"]:SetText("-");
-	deleteCurrentProfileButton.tooltipText = "Delete current profile."
-	deleteCurrentProfileButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(deleteCurrentProfileButton, "ANCHOR_TOPLEFT")
+	_G[deleteProfileButton:GetName().."Text"]:SetText("-");
+	deleteProfileButton.tooltipText = "Delete this profile."
+	deleteProfileButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(deleteProfileButton, "ANCHOR_TOPLEFT")
 		GameTooltip:ClearLines()
 		GameTooltip:AddLine(self.tooltipText)
 		GameTooltip:Show()
@@ -329,38 +442,6 @@ function RenderOptions()
 	bannedHelp:SetTextColor(0.5,0.5,0.5);
 	bannedHelp:SetText("Messages containing at least one of the following keywords won't show");
 
-	local rolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	rolesBoxText:SetPoint("TOPLEFT", leftMargin, rolesPos);
-	rolesBoxText:SetText("Roles :");
-	rolesBox = CreateFrame("editbox", "cf_rolesBox", options, "InputBoxTemplate")
-	rolesBox:SetPoint("TOPLEFT", rolesBoxText, "BOTTOMLEFT", 0, 0);
-	rolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
-	rolesBox:SetHeight(25)
-	rolesBox:SetAutoFocus(false)
-	rolesBox:ClearFocus()
-	rolesBox:SetScript("OnEscapePressed", function(self)
-		SetCurrentValue("roles", StringToTable(self:GetText()))
-		self:SetAutoFocus(false)
-		self:ClearFocus()
-	end)
-	rolesBox:SetScript("OnEnterPressed", function(self)
-		SetCurrentValue("roles", StringToTable(self:GetText()))
-		self:SetAutoFocus(false)
-		self:ClearFocus()
-	end)
-	rolesBox:SetScript("OnEditFocusLost", function(self)
-		SetCurrentValue("roles", StringToTable(self:GetText()))
-		self:SetAutoFocus(false)
-		self:ClearFocus()
-	end)
-	rolesBox:SetScript("OnEditFocusGained", function(self)
-		self:SetAutoFocus(true)
-	end)
-	local rolesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-	rolesHelp:SetPoint("BOTTOMRIGHT", rolesBox,"TOPRIGHT",0,0);
-	rolesHelp:SetTextColor(0.5,0.5,0.5);
-	rolesHelp:SetText("Roles you want to see (if empty, filter won't be used)");
-
 	local dungeonsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	dungeonsBoxText:SetPoint("TOPLEFT", leftMargin, dungeonsPos);
 	dungeonsBoxText:SetText("Dungeons : ");
@@ -391,7 +472,39 @@ function RenderOptions()
 	local dungeonsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	dungeonsHelp:SetPoint("BOTTOMRIGHT", dungeonsBox,"TOPRIGHT",0,0);
 	dungeonsHelp:SetTextColor(0.5,0.5,0.5);
-	dungeonsHelp:SetText("Dungeons you want to see (if empty, filter won't be used)");
+	dungeonsHelp:SetText("Dungeons you want to see (if empty, any)");
+
+	local dungeonsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
+	dungeonsRolesBoxText:SetPoint("TOPLEFT", leftMargin, dungeonsRolesPos);
+	dungeonsRolesBoxText:SetText("Dungeon roles :");
+	dungeonsRolesBox = CreateFrame("editbox", "cf_dungeonsRolesBox", options, "InputBoxTemplate")
+	dungeonsRolesBox:SetPoint("TOPLEFT", dungeonsRolesBoxText, "BOTTOMLEFT", 0, 0);
+	dungeonsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
+	dungeonsRolesBox:SetHeight(25)
+	dungeonsRolesBox:SetAutoFocus(false)
+	dungeonsRolesBox:ClearFocus()
+	dungeonsRolesBox:SetScript("OnEscapePressed", function(self)
+		SetCurrentValue("dungeons_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsRolesBox:SetScript("OnEnterPressed", function(self)
+		SetCurrentValue("dungeons_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsRolesBox:SetScript("OnEditFocusLost", function(self)
+		SetCurrentValue("dungeons_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsRolesBox:SetScript("OnEditFocusGained", function(self)
+		self:SetAutoFocus(true)
+	end)
+	local dungeonsRolesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	dungeonsRolesHelp:SetPoint("BOTTOMRIGHT", dungeonsRolesBox,"TOPRIGHT",0,0);
+	dungeonsRolesHelp:SetTextColor(0.5,0.5,0.5);
+	dungeonsRolesHelp:SetText("Dungeon roles you want to see (if empty, any)");
 
 	local raidsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	raidsBoxText:SetPoint("TOPLEFT", leftMargin, raidsPos);
@@ -423,7 +536,39 @@ function RenderOptions()
 	local raidsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	raidsHelp:SetPoint("BOTTOMRIGHT", raidsBox,"TOPRIGHT",0,0);
 	raidsHelp:SetTextColor(0.5,0.5,0.5);
-	raidsHelp:SetText("Raids you want to see (if empty, filter won't be used)");
+	raidsHelp:SetText("Raids you want to see (if empty, any)");
+
+	local raidsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
+	raidsRolesBoxText:SetPoint("TOPLEFT", leftMargin, raidsRolesPos);
+	raidsRolesBoxText:SetText("Raid roles :");
+	raidsRolesBox = CreateFrame("editbox", "cf_raidsRolesBox", options, "InputBoxTemplate")
+	raidsRolesBox:SetPoint("TOPLEFT", raidsRolesBoxText, "BOTTOMLEFT", 0, 0);
+	raidsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
+	raidsRolesBox:SetHeight(25)
+	raidsRolesBox:SetAutoFocus(false)
+	raidsRolesBox:ClearFocus()
+	raidsRolesBox:SetScript("OnEscapePressed", function(self)
+		SetCurrentValue("raids_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	raidsRolesBox:SetScript("OnEnterPressed", function(self)
+		SetCurrentValue("raids_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	raidsRolesBox:SetScript("OnEditFocusLost", function(self)
+		SetCurrentValue("raids_roles", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	raidsRolesBox:SetScript("OnEditFocusGained", function(self)
+		self:SetAutoFocus(true)
+	end)
+	local raidsRolesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	raidsRolesHelp:SetPoint("BOTTOMRIGHT", raidsRolesBox,"TOPRIGHT",0,0);
+	raidsRolesHelp:SetTextColor(0.5,0.5,0.5);
+	raidsRolesHelp:SetText("Raid roles you want to see (if empty, any)");
 
 	local help=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	help:SetPoint("BOTTOMLEFT", options,"BOTTOMLEFT", leftMargin , 20);
@@ -431,11 +576,10 @@ function RenderOptions()
 	help:SetJustifyH("LEFT");
 	help:SetWidth(590);
 	local helpText = "Keywords have to be separated by a |cff7eff7ecomma|cff7e7e7e (|cff7eff7e,|cff7e7e7e)."
-					.."\n\n|cffffffffRoles|cff7e7e7e and |cffffffffDungeons|cff7e7e7e filters are used in |cffff7e7ecombination|cff7e7e7e."
-					.."\n|cffffffffRaids|cff7e7e7e filter |cffff7e7edoesn't combine|cff7e7e7e with |cffffffffRoles|cff7e7e7e."
-					.."\n\nExample :"
-					.."\n|cff7e7efftank|cff7e7e7e as |cffffffffRoles|cff7e7e7e, |cff7e7effscholo,strat|cff7e7e7e as |cffffffffDungeons|cff7e7e7e and |cff7e7effonyxia|cff7e7e7e as |cffffffffRaids|cff7e7e7e"
-					.."\nwould only show messages mentioning |cff7e7effonyxia|cff7e7e7e |cff7eff7eor|cff7e7e7e (|cff7e7efftank|cff7e7e7e |cffff7e7eand|cff7e7e7e (|cff7e7effscholo|cff7e7e7e |cff7eff7eor|cff7e7e7e |cff7e7effstrat|cff7e7e7e))"
+					.."\n\n|cffffffffRoles|cff7e7e7e and |cffffffffDungeons|cff7e7e7e/|cffffffffRaids|cff7e7e7e filters are used in |cffff7e7ecombination|cff7e7e7e"
+					.."\n\nExample profile :"
+					.."\n|cff7e7effscholo,strat|cff7e7e7e as |cffffffffDungeons|cff7e7e7e with |cff7e7efftank|cff7e7e7e as |cffffffffDungeon roles|cff7e7e7e and |cff7e7effonyxia|cff7e7e7e as |cffffffffRaids|cff7e7e7e with |cff7e7efftank,dps|cff7e7e7e as |cffffffffRoles|cff7e7e7e"
+					.."\nwould only show messages mentioning ((|cff7e7effscholo|cff7e7e7e |cff7eff7eor|cff7e7e7e |cff7e7effstrat|cff7e7e7e) |cffff7e7eand|cff7e7e7e |cff7e7efftank|cff7e7e7e) |cff7eff7eor|cff7e7e7e (|cff7e7effonyxia|cff7e7e7e |cffff7e7eand|cff7e7e7e (|cff7e7efftank|cff7e7e7e |cff7eff7eor|cff7e7e7e |cff7e7effdps|cff7e7e7e))"
 					.."\n\nChatFilter will later be updated to support custom advanced filters."
 	help:SetText(helpText)
 
@@ -454,23 +598,23 @@ function RenderOptions()
 		if(IsShiftKeyDown()) then
 			channelsBox:SetAutoFocus(true)
 		else
-			rolesBox:SetAutoFocus(true)
-		end
-	end)
-	rolesBox:SetScript("OnTabPressed", function(self)
-		self:SetAutoFocus(false)
-		self:ClearFocus()
-		if(IsShiftKeyDown()) then
-			bannedBox:SetAutoFocus(true)
-		else
-			dungeonsBox:SetAutoFocus(true)
+			dungeonsRolesBox:SetAutoFocus(true)
 		end
 	end)
 	dungeonsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
 		self:ClearFocus()
 		if(IsShiftKeyDown()) then
-			rolesBox:SetAutoFocus(true)
+			bannedBox:SetAutoFocus(true)
+		else
+			dungeonsRolesBox:SetAutoFocus(true)
+		end
+	end)
+	dungeonsRolesBox:SetScript("OnTabPressed", function(self)
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+		if(IsShiftKeyDown()) then
+			dungeonsBox:SetAutoFocus(true)
 		else
 			raidsBox:SetAutoFocus(true)
 		end
@@ -481,11 +625,41 @@ function RenderOptions()
 		if(IsShiftKeyDown()) then
 			dungeonsBox:SetAutoFocus(true)
 		else
+			raidsRolesBox:SetAutoFocus(true)
+		end
+	end)
+	raidsRolesBox:SetScript("OnTabPressed", function(self)
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+		if(IsShiftKeyDown()) then
+			raidsBox:SetAutoFocus(true)
+		else
 			channelsBox:SetAutoFocus(true)
 		end
 	end)
 
 	SetProfile(SavedChar["profile"])
+end
+
+function RenameProfile(val)
+	if(#val > 0 and not SavedGlobal["profiles"][val]) then
+		SavedGlobal["profiles"][val] = DeepCopy(SavedGlobal["profiles"][SavedChar["profile"]])
+		SavedGlobal["profiles"][SavedChar["profile"]] = nil
+		SetProfile(val)
+		RefreshValues()
+	else
+		print(addonStr.." : couldn't rename profile")
+	end
+end
+
+function CopyProfile(val)
+	if(#val > 0 and not SavedGlobal["profiles"][val]) then
+		SavedGlobal["profiles"][val] = DeepCopy(SavedGlobal["profiles"][SavedChar["profile"]])
+		SetProfile(val)
+		RefreshValues()
+	else
+		print(addonStr.." : couldn't copy profile")
+	end
 end
 
 function CreateProfile(val)
@@ -494,7 +668,7 @@ function CreateProfile(val)
 		SetProfile(val)
 		RefreshValues()
 	else
-		print("Couldn't create profile")
+		print(addonStr.." : couldn't create profile")
 	end
 end
 
@@ -511,20 +685,24 @@ function SetProfile(val,noinit)
 	SavedChar["profile"] = val;
 	L_UIDropDownMenu_SetSelectedValue(profilesDropDown, val);
 	if(val == "Default") then
-		deleteCurrentProfileButton:Disable()
+		renameProfileButton:Disable()
+		deleteProfileButton:Disable()
 	else
-		deleteCurrentProfileButton:Enable()
+		renameProfileButton:Enable()
+		deleteProfileButton:Enable()
 	end
 end
 
 function RefreshValues()
+	enabledButton:SetChecked(SavedChar.enabled);
 	pmessagesButton:SetChecked(GetCurrentValue("show_player_messages"));
 	pmentionsButton:SetChecked(GetCurrentValue("show_player_mentions"));
 	channelsBox:SetText(TableToString(GetCurrentValue("channels")));
 	bannedBox:SetText(TableToString(GetCurrentValue("banned")));
-	rolesBox:SetText(TableToString(GetCurrentValue("roles")));
 	dungeonsBox:SetText(TableToString(GetCurrentValue("dungeons")));
+	dungeonsRolesBox:SetText(TableToString(GetCurrentValue("dungeons_roles")));
 	raidsBox:SetText(TableToString(GetCurrentValue("raids")));
+	raidsRolesBox:SetText(TableToString(GetCurrentValue("raids_roles")));
 end
 
 function profilesDropdownInit(self, level)
@@ -545,7 +723,7 @@ end
 function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 	if(SavedChar["enabled"]) then
 		if(not CheckPlayerAuthor(author) and not CheckPlayerMention(msg) and CheckChannel(channel)) then
-			if(CheckBanned(msg) or not CheckFilters(msg)) then
+			if(CheckBanned(msg) or (not CheckDungeons(msg) and not CheckRaids(msg))) then
 				return true
 			end
 		end
@@ -589,10 +767,14 @@ function CheckBanned(msg)
 	return HasValues("banned") and MatchAny(msg, GetCurrentValue("banned"))
 end
 
-function CheckFilters(msg)
-	return (not HasValues("raids") or MatchAny(msg, GetCurrentValue("raids")))
-		or ((not HasValues("roles") or MatchAny(msg, GetCurrentValue("roles")))
-			and (not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons"))))
+function CheckDungeons(msg)
+	return (not HasValues("dungeons_roles") or MatchAny(msg, GetCurrentValue("dungeons_roles")))
+			and (not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons")))
+end
+
+function CheckRaids(msg)
+	return (not HasValues("raids_roles") or MatchAny(msg, GetCurrentValue("raids_roles")))
+			and (not HasValues("raids") or MatchAny(msg, GetCurrentValue("raids")))
 end
 
 function MatchAny(source,testlist)
