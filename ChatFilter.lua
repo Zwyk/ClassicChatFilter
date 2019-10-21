@@ -257,18 +257,7 @@ StaticPopupDialogs["CHATFILTER_PROFILE_DELETE"] = {
 
 function RenderOptions()
 	local leftMargin = 20
-	local headerPos = -20
-	local enabledPos = headerPos - 15
-	local profilesPos = enabledPos - 50
-	local pmessagesPos = profilesPos - 25
-	local pmentionsPos = pmessagesPos - 15
-	local channelsPos = pmentionsPos - 25
-	local bannedPos = channelsPos - 45
-	local dungeonsPos = bannedPos - 45
-	local dungeonsRolesPos = dungeonsPos - 45
-	local raidsPos = dungeonsRolesPos - 45
-	local raidsRolesPos = raidsPos - 45
-	local otherPos = raidsRolesPos - 45
+	local topMargin = -20
 
 	local options = CreateFrame("FRAME","cf_options");
 	options.name = "ChatFilter";
@@ -278,23 +267,32 @@ function RenderOptions()
 	InterfaceOptions_AddCategory(options);
 
 	local header = options:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
-	header:SetPoint("TOPLEFT", leftMargin, headerPos);
+	header:SetPoint("TOPLEFT", leftMargin, topMargin);
 	header:SetText("ChatFilter");
 	local ver=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	ver:SetPoint("BOTTOMLEFT",header,"BOTTOMRIGHT",1,0);
-	ver:SetTextColor(0.5,0.5,0.5);
+	ver:SetTextColor(0.7,0.7,0.7);
 	ver:SetText("v"..version);
 
 	enabledButton = CreateFrame("CheckButton", "cf_enabledButton", options, "ChatConfigCheckButtonTemplate");
-	enabledButton:SetPoint("TOPLEFT", leftMargin, enabledPos)
+	enabledButton:SetPoint("LEFT", ver, "RIGHT", 5, 0)
 	enabledButton.tooltip = "Enable the ChatFilter addon.";
 	_G[enabledButton:GetName().."Text"]:SetText("Enabled");
 	enabledButton:SetScript("OnClick", function(self)
 		SavedChar.enabled = self:GetChecked();
 	end)
 
+	local welcomeText=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	welcomeText:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -5);
+	welcomeText:SetTextColor(0.7,0.7,0.7);
+	welcomeText:SetJustifyH("LEFT");
+	welcomeText:SetWidth(590);
+	welcomeText:SetText("|cff939393Welcome"
+						.."\nblabla"
+						.."\n|cff939393An example setup is available by selecting the |cffffffffExample|cff939393 profile.")
+
 	local profilesDropDownText = options:CreateFontString(nil, "ARTWORK","GameFontNormal");
-	profilesDropDownText:SetPoint("TOPLEFT", leftMargin, profilesPos);
+	profilesDropDownText:SetPoint("TOPLEFT", welcomeText, "BOTTOMLEFT", 0, -20);
 	profilesDropDownText:SetText("Profile selection");
 	profilesDropDown = L_Create_UIDropDownMenu("cf_profilesDropdown", options);
 	profilesDropDown:SetPoint("LEFT", profilesDropDownText, "RIGHT", 5, -4)
@@ -369,7 +367,7 @@ function RenderOptions()
 	end);
 
 	pmessagesButton = CreateFrame("CheckButton", "cf_pmessagesButton", options, "ChatConfigCheckButtonTemplate");
-	pmessagesButton:SetPoint("TOPLEFT", leftMargin, pmessagesPos)
+	pmessagesButton:SetPoint("TOPLEFT", profilesDropDownText, "BOTTOMLEFT", 0, -20)
 	pmessagesButton.tooltip = "Always show your own messages.";
 	_G[pmessagesButton:GetName().."Text"]:SetText("Always show player's messages");
 	pmessagesButton:SetScript("OnClick", function(self)
@@ -377,15 +375,22 @@ function RenderOptions()
 	end)
 
 	pmentionsButton = CreateFrame("CheckButton", "cf_pmentionsButton", options, "ChatConfigCheckButtonTemplate");
-	pmentionsButton:SetPoint("TOPLEFT", leftMargin, pmentionsPos)
+	pmentionsButton:SetPoint("TOPLEFT", pmessagesButton, "BOTTOMLEFT", 0, 0)
 	pmentionsButton.tooltip = "Always show messages containing your character's name.";
 	_G[pmentionsButton:GetName().."Text"]:SetText("Always show player mentions");
 	pmentionsButton:SetScript("OnClick", function(self)
 		SetCurrentValue("show_player_mentions", self:GetChecked());
 	end)
 
+	local helpText1=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	helpText1:SetPoint("TOPLEFT", pmentionsButton, "BOTTOMLEFT", 0, -5);
+	helpText1:SetTextColor(0.7,0.7,0.7);
+	helpText1:SetJustifyH("LEFT");
+	helpText1:SetWidth(590);
+	helpText1:SetText("|cff939393Keywords have to be separated by a |cff93ff93comma|cff939393 (|cff93ff93,|cff939393).")
+
 	local channelsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	channelsBoxText:SetPoint("TOPLEFT", leftMargin, channelsPos);
+	channelsBoxText:SetPoint("TOPLEFT", helpText1, "BOTTOMLEFT", 0, -10);
 	channelsBoxText:SetText("Channels :");
 	channelsBox = CreateFrame("editbox", "cf_channelsBox", options, "InputBoxTemplate")
 	channelsBox:SetPoint("TOPLEFT", channelsBoxText, "BOTTOMLEFT", 0, 0);
@@ -413,12 +418,15 @@ function RenderOptions()
 	end)
 	local channelsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	channelsHelp:SetPoint("BOTTOMRIGHT", channelsBox,"TOPRIGHT",0,0);
-	channelsHelp:SetTextColor(0.5,0.5,0.5);
-	channelsHelp:SetText("Channels you want to be filtered");
+	channelsHelp:SetTextColor(0.7,0.7,0.7);
+	channelsHelp:SetText("Channels the filters will be applied to");
+	local channelsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	channelsTip:SetPoint("LEFT", channelsBox,"LEFT",0,0);
+	channelsTip:SetTextColor(1,1,1);
 
 	local bannedBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	bannedBoxText:SetPoint("TOPLEFT", leftMargin, bannedPos);
-	bannedBoxText:SetText("Banned :");
+	bannedBoxText:SetPoint("TOPLEFT", channelsBox, "BOTTOMLEFT", 0, -5);
+	bannedBoxText:SetText("Blacklisted keywords :");
 	bannedBox = CreateFrame("editbox", "cf_bannedBox", options, "InputBoxTemplate")
 	bannedBox:SetPoint("TOPLEFT", bannedBoxText, "BOTTOMLEFT", 0, 0);
 	bannedBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
@@ -445,16 +453,19 @@ function RenderOptions()
 	end)
 	local bannedHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	bannedHelp:SetPoint("BOTTOMRIGHT", bannedBox,"TOPRIGHT",0,0);
-	bannedHelp:SetTextColor(0.5,0.5,0.5);
-	bannedHelp:SetText("Messages containing at least one of the following keywords won't show");
+	bannedHelp:SetTextColor(0.7,0.7,0.7);
+	bannedHelp:SetText("Blacklisted keywords will be always hidden");
+	local bannedTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	bannedTip:SetPoint("LEFT", bannedBox,"LEFT",0,0);
+	bannedTip:SetTextColor(1,1,1);
 
 	local dungeonsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	dungeonsBoxText:SetPoint("TOPLEFT", leftMargin, dungeonsPos);
-	dungeonsBoxText:SetText("Dungeons : ");
+	dungeonsBoxText:SetPoint("TOPLEFT", bannedBox, "BOTTOMLEFT", 0, -5);
+	dungeonsBoxText:SetText("Dungeons whitelist : ");
 	dungeonsBox = CreateFrame("editbox", "cf_dungeonsBox", options, "InputBoxTemplate")
 	dungeonsBox:SetPoint("TOPLEFT", dungeonsBoxText, "BOTTOMLEFT", 0, 0);
-	dungeonsBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	dungeonsBox:SetHeight(25)
+	dungeonsBox:SetWidth(250)
 	dungeonsBox:SetAutoFocus(false)
 	dungeonsBox:ClearFocus()
 	dungeonsBox:SetScript("OnEscapePressed", function(self)
@@ -477,12 +488,19 @@ function RenderOptions()
 	end)
 	local dungeonsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	dungeonsHelp:SetPoint("BOTTOMRIGHT", dungeonsBox,"TOPRIGHT",0,0);
-	dungeonsHelp:SetTextColor(0.5,0.5,0.5);
-	dungeonsHelp:SetText("Dungeons you want to see (if empty, any)");
+	dungeonsHelp:SetTextColor(0.7,0.7,0.7);
+	dungeonsHelp:SetText("");
+	local dungeonsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	dungeonsTip:SetPoint("LEFT", dungeonsBox,"LEFT",0,0);
+	dungeonsTip:SetTextColor(1,1,1);
+	local dungeonsAnd=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	dungeonsAnd:SetPoint("LEFT", dungeonsBox,"RIGHT", 2, 0);
+	dungeonsAnd:SetTextColor(0.7,0.7,0.7);
+	dungeonsAnd:SetText("|cffff9393and|cff939393");
 
 	local dungeonsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	dungeonsRolesBoxText:SetPoint("TOPLEFT", leftMargin, dungeonsRolesPos);
-	dungeonsRolesBoxText:SetText("Dungeon roles :");
+	dungeonsRolesBoxText:SetPoint("BOTTOMLEFT", dungeonsBox, "TOPRIGHT", 30, 0);
+	dungeonsRolesBoxText:SetText("Dungeon roles whitelist :");
 	dungeonsRolesBox = CreateFrame("editbox", "cf_dungeonsRolesBox", options, "InputBoxTemplate")
 	dungeonsRolesBox:SetPoint("TOPLEFT", dungeonsRolesBoxText, "BOTTOMLEFT", 0, 0);
 	dungeonsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
@@ -509,16 +527,19 @@ function RenderOptions()
 	end)
 	local dungeonsRolesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	dungeonsRolesHelp:SetPoint("BOTTOMRIGHT", dungeonsRolesBox,"TOPRIGHT",0,0);
-	dungeonsRolesHelp:SetTextColor(0.5,0.5,0.5);
-	dungeonsRolesHelp:SetText("Dungeon roles you want to see (if empty, any)");
+	dungeonsRolesHelp:SetTextColor(0.7,0.7,0.7);
+	dungeonsRolesHelp:SetText("");
+	local dungeonsRolesTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	dungeonsRolesTip:SetPoint("LEFT", dungeonsRolesBox,"LEFT",0,0);
+	dungeonsRolesTip:SetTextColor(1,1,1);
 
 	local raidsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	raidsBoxText:SetPoint("TOPLEFT", leftMargin, raidsPos);
-	raidsBoxText:SetText("Raids : ");
+	raidsBoxText:SetPoint("TOPLEFT", dungeonsBox, "BOTTOMLEFT", 0, -5);
+	raidsBoxText:SetText("Raids whitelist : ");
 	raidsBox = CreateFrame("editbox", "cf_raidsBox", options, "InputBoxTemplate")
 	raidsBox:SetPoint("TOPLEFT", raidsBoxText, "BOTTOMLEFT", 0, 0);
-	raidsBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	raidsBox:SetHeight(25)
+	raidsBox:SetWidth(250)
 	raidsBox:SetAutoFocus(false)
 	raidsBox:ClearFocus()
 	raidsBox:SetScript("OnEscapePressed", function(self)
@@ -541,12 +562,19 @@ function RenderOptions()
 	end)
 	local raidsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	raidsHelp:SetPoint("BOTTOMRIGHT", raidsBox,"TOPRIGHT",0,0);
-	raidsHelp:SetTextColor(0.5,0.5,0.5);
-	raidsHelp:SetText("Raids you want to see (if empty, any)");
+	raidsHelp:SetTextColor(0.7,0.7,0.7);
+	raidsHelp:SetText("");
+	local raidsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	raidsTip:SetPoint("LEFT", raidsBox,"LEFT",0,0);
+	raidsTip:SetTextColor(1,1,1);
+	local raidsAnd=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	raidsAnd:SetPoint("LEFT", raidsBox,"RIGHT", 2, 0);
+	raidsAnd:SetTextColor(0.7,0.7,0.7);
+	raidsAnd:SetText("|cffff9393and|cff939393");
 
 	local raidsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	raidsRolesBoxText:SetPoint("TOPLEFT", leftMargin, raidsRolesPos);
-	raidsRolesBoxText:SetText("Raid roles :");
+	raidsRolesBoxText:SetPoint("BOTTOMLEFT", raidsBox, "TOPRIGHT", 30, 0);
+	raidsRolesBoxText:SetText("Raid roles whitelist :");
 	raidsRolesBox = CreateFrame("editbox", "cf_raidsRolesBox", options, "InputBoxTemplate")
 	raidsRolesBox:SetPoint("TOPLEFT", raidsRolesBoxText, "BOTTOMLEFT", 0, 0);
 	raidsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
@@ -573,12 +601,15 @@ function RenderOptions()
 	end)
 	local raidsRolesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	raidsRolesHelp:SetPoint("BOTTOMRIGHT", raidsRolesBox,"TOPRIGHT",0,0);
-	raidsRolesHelp:SetTextColor(0.5,0.5,0.5);
-	raidsRolesHelp:SetText("Raid roles you want to see (if empty, any)");
+	raidsRolesHelp:SetTextColor(0.7,0.7,0.7);
+	raidsRolesHelp:SetText("");
+	local raidsRolesTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	raidsRolesTip:SetPoint("LEFT", raidsRolesBox,"LEFT",0,0);
+	raidsRolesTip:SetTextColor(1,1,1);
 
 	local otherBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	otherBoxText:SetPoint("TOPLEFT", leftMargin, otherPos);
-	otherBoxText:SetText("Other :");
+	otherBoxText:SetPoint("TOPLEFT", raidsBox, "BOTTOMLEFT", 0, -5);
+	otherBoxText:SetText("Other whitelisted keywords :");
 	otherBox = CreateFrame("editbox", "cf_otherBox", options, "InputBoxTemplate")
 	otherBox:SetPoint("TOPLEFT", otherBoxText, "BOTTOMLEFT", 0, 0);
 	otherBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
@@ -605,21 +636,18 @@ function RenderOptions()
 	end)
 	local otherHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	otherHelp:SetPoint("BOTTOMRIGHT", otherBox,"TOPRIGHT",0,0);
-	otherHelp:SetTextColor(0.5,0.5,0.5);
-	otherHelp:SetText("Other whitelisted keywords to show");
+	otherHelp:SetTextColor(0.7,0.7,0.7);
+	otherHelp:SetText("");
+	local otherTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	otherTip:SetPoint("LEFT", otherBox,"LEFT",0,0);
+	otherTip:SetTextColor(1,1,1);
 
-	local help=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-	help:SetPoint("BOTTOMLEFT", options,"BOTTOMLEFT", leftMargin , 20);
-	help:SetTextColor(0.5,0.5,0.5);
-	help:SetJustifyH("LEFT");
-	help:SetWidth(590);
-	local helpText = "Keywords have to be separated by a |cff7eff7ecomma|cff7e7e7e (|cff7eff7e,|cff7e7e7e)."
-					.."\n\n|cffffffffRoles|cff7e7e7e and |cffffffffDungeons|cff7e7e7e/|cffffffffRaids|cff7e7e7e filters are used in |cffff7e7ecombination|cff7e7e7e"
-					.."\n\nExample profile :"
-					.."\n|cff7e7effscholo,strat|cff7e7e7e as |cffffffffDungeons|cff7e7e7e with |cff7e7efftank|cff7e7e7e as |cffffffffDungeon roles|cff7e7e7e and |cff7e7effonyxia|cff7e7e7e as |cffffffffRaids|cff7e7e7e with |cff7e7efftank,dps|cff7e7e7e as |cffffffffRoles|cff7e7e7e"
-					.."\nwould only show messages mentioning ((|cff7e7effscholo|cff7e7e7e |cff7eff7eor|cff7e7e7e |cff7e7effstrat|cff7e7e7e) |cffff7e7eand|cff7e7e7e |cff7e7efftank|cff7e7e7e) |cff7eff7eor|cff7e7e7e (|cff7e7effonyxia|cff7e7e7e |cffff7e7eand|cff7e7e7e (|cff7e7efftank|cff7e7e7e |cff7eff7eor|cff7e7e7e |cff7e7effdps|cff7e7e7e))"
-					.."\n\nChatFilter will later be updated to support custom advanced filters."
-	help:SetText(helpText)
+	local bottomText=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	bottomText:SetPoint("BOTTOMLEFT", options,"BOTTOMLEFT", leftMargin , 20);
+	bottomText:SetTextColor(0.7,0.7,0.7);
+	bottomText:SetJustifyH("LEFT");
+	bottomText:SetWidth(590);
+	bottomText:SetText("ChatFilter will later be updated to support custom advanced filters.")
 
 	channelsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
@@ -628,6 +656,13 @@ function RenderOptions()
 			raidsBox:SetAutoFocus(true)
 		else
 			bannedBox:SetAutoFocus(true)
+		end
+	end)
+	channelsBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "") then
+			channelsTip:SetText("none")
+		else
+			channelsTip:SetText("")
 		end
 	end)
 	bannedBox:SetScript("OnTabPressed", function(self)
@@ -639,6 +674,13 @@ function RenderOptions()
 			dungeonsRolesBox:SetAutoFocus(true)
 		end
 	end)
+	bannedBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "") then
+			bannedTip:SetText("none")
+		else
+			bannedTip:SetText("")
+		end
+	end)
 	dungeonsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
 		self:ClearFocus()
@@ -646,6 +688,19 @@ function RenderOptions()
 			bannedBox:SetAutoFocus(true)
 		else
 			dungeonsRolesBox:SetAutoFocus(true)
+		end
+	end)
+	dungeonsBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "" and dungeonsRolesBox:GetText() == "") then
+			dungeonsTip:SetText("disabled")
+			dungeonsRolesTip:SetText("disabled")
+		elseif(self:GetText() == "") then
+			dungeonsTip:SetText("any")
+		else
+			dungeonsTip:SetText("")
+			if(dungeonsRolesBox:GetText() == "") then
+				dungeonsRolesTip:SetText("any")
+			end
 		end
 	end)
 	dungeonsRolesBox:SetScript("OnTabPressed", function(self)
@@ -657,6 +712,19 @@ function RenderOptions()
 			raidsBox:SetAutoFocus(true)
 		end
 	end)
+	dungeonsRolesBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "" and dungeonsBox:GetText() == "") then
+			dungeonsTip:SetText("disabled")
+			dungeonsRolesTip:SetText("disabled")
+		elseif(self:GetText() == "") then
+			dungeonsRolesTip:SetText("any")
+		else
+			dungeonsRolesTip:SetText("")
+			if(dungeonsBox:GetText() == "") then
+				dungeonsTip:SetText("any")
+			end
+		end
+	end)
 	raidsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
 		self:ClearFocus()
@@ -664,6 +732,19 @@ function RenderOptions()
 			dungeonsBox:SetAutoFocus(true)
 		else
 			raidsRolesBox:SetAutoFocus(true)
+		end
+	end)
+	raidsBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "" and raidsRolesBox:GetText() == "") then
+			raidsTip:SetText("disabled")
+			raidsRolesTip:SetText("disabled")
+		elseif(self:GetText() == "") then
+			raidsTip:SetText("any")
+		else
+			raidsTip:SetText("")
+			if(raidsRolesBox:GetText() == "") then
+				raidsRolesTip:SetText("any")
+			end
 		end
 	end)
 	raidsRolesBox:SetScript("OnTabPressed", function(self)
@@ -675,6 +756,19 @@ function RenderOptions()
 			otherBox:SetAutoFocus(true)
 		end
 	end)
+	raidsRolesBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "" and raidsBox:GetText() == "") then
+			raidsTip:SetText("disabled")
+			raidsRolesTip:SetText("disabled")
+		elseif(self:GetText() == "") then
+			raidsRolesTip:SetText("any")
+		else
+			raidsRolesTip:SetText("")
+			if(raidsBox:GetText() == "") then
+				raidsTip:SetText("any")
+			end
+		end
+	end)
 	otherBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
 		self:ClearFocus()
@@ -682,6 +776,13 @@ function RenderOptions()
 			raidsRolesBox:SetAutoFocus(true)
 		else
 			channelsBox:SetAutoFocus(true)
+		end
+	end)
+	otherBox:SetScript("OnTextChanged", function(self)
+		if(self:GetText() == "") then
+			otherTip:SetText("disabled")
+		else
+			otherTip:SetText("")
 		end
 	end)
 
@@ -770,8 +871,14 @@ end
 
 function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 	if(SavedChar["enabled"]) then
-		if(not CheckPlayerAuthor(author) and not CheckPlayerMention(msg) and CheckChannel(channel)) then
-			if(CheckBanned(msg) or (not CheckDungeons(msg) and not CheckRaids(msg) or not CheckOther(msg))) then
+		if(CheckChannel(channel)) then
+			if(CheckPlayerAuthor(author) or CheckPlayerMention(msg)) then
+				return false
+			elseif(CheckBanned(msg)) then
+				return true
+			elseif(AtLeastOneFilter() and (CheckDungeons(msg) or CheckRaids(msg) or CheckOther(msg))) then
+				return false
+			else
 				return true
 			end
 		end
@@ -807,6 +914,10 @@ function CheckAuthor(author,check)
 	return author == check
 end
 
+function AtLeastOneFilter()
+	return HasValues("raids") or HasValues("raids_roles") or HasValues("dungeons") or HasValues("dungeons_roles") or HasValues("other")
+end
+
 function CheckChannel(channel)
 	return HasValues("channels") and MatchAny(channel, GetCurrentValue("channels"))
 end
@@ -816,17 +927,19 @@ function CheckBanned(msg)
 end
 
 function CheckDungeons(msg)
-	return (not HasValues("dungeons_roles") or MatchAny(msg, GetCurrentValue("dungeons_roles")))
-			and (not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons")))
+	return (HasValues("dungeons_roles") or HasValues("dungeons")) and
+			((not HasValues("dungeons_roles") or MatchAny(msg, GetCurrentValue("dungeons_roles")))
+			and (not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons"))))
 end
 
 function CheckRaids(msg)
-	return (not HasValues("raids_roles") or MatchAny(msg, GetCurrentValue("raids_roles")))
-			and (not HasValues("raids") or MatchAny(msg, GetCurrentValue("raids")))
+	return (HasValues("raids_roles") or HasValues("raids")) and
+			((not HasValues("raids_roles") or MatchAny(msg, GetCurrentValue("raids_roles")))
+			and (not HasValues("raids") or MatchAny(msg, GetCurrentValue("raids"))))
 end
 
 function CheckOther(msg)
-	return not HasValues("other") or MatchAny(msg, GetCurrentValue("other"))
+	return HasValues("other") and MatchAny(msg, GetCurrentValue("other"))
 end
 
 function MatchAny(source,testlist)
