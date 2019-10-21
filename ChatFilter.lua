@@ -8,6 +8,7 @@ defaultProfile =
 	["dungeons_roles"] = {},
 	["raids"] = {},
 	["raids_roles"] = {},
+	["other"] = {},
 }
 
 exampleProfie =
@@ -35,6 +36,10 @@ exampleProfie =
 	["raids_roles"] = {
 		"tank", -- [1]
 		"dps", -- [2]
+	},
+	["other"] = {
+		"thunderfury", -- [1]
+		"help", -- [2]
 	},
 }
 
@@ -263,6 +268,7 @@ function RenderOptions()
 	local dungeonsRolesPos = dungeonsPos - 45
 	local raidsPos = dungeonsRolesPos - 45
 	local raidsRolesPos = raidsPos - 45
+	local otherPos = raidsRolesPos - 45
 
 	local options = CreateFrame("FRAME","cf_options");
 	options.name = "ChatFilter";
@@ -570,6 +576,38 @@ function RenderOptions()
 	raidsRolesHelp:SetTextColor(0.5,0.5,0.5);
 	raidsRolesHelp:SetText("Raid roles you want to see (if empty, any)");
 
+	local otherBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
+	otherBoxText:SetPoint("TOPLEFT", leftMargin, otherPos);
+	otherBoxText:SetText("Other :");
+	otherBox = CreateFrame("editbox", "cf_otherBox", options, "InputBoxTemplate")
+	otherBox:SetPoint("TOPLEFT", otherBoxText, "BOTTOMLEFT", 0, 0);
+	otherBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
+	otherBox:SetHeight(25)
+	otherBox:SetAutoFocus(false)
+	otherBox:ClearFocus()
+	otherBox:SetScript("OnEscapePressed", function(self)
+		SetCurrentValue("other", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	otherBox:SetScript("OnEnterPressed", function(self)
+		SetCurrentValue("other", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	otherBox:SetScript("OnEditFocusLost", function(self)
+		SetCurrentValue("other", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	otherBox:SetScript("OnEditFocusGained", function(self)
+		self:SetAutoFocus(true)
+	end)
+	local otherHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	otherHelp:SetPoint("BOTTOMRIGHT", otherBox,"TOPRIGHT",0,0);
+	otherHelp:SetTextColor(0.5,0.5,0.5);
+	otherHelp:SetText("Other whitelisted keywords to show");
+
 	local help=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	help:SetPoint("BOTTOMLEFT", options,"BOTTOMLEFT", leftMargin , 20);
 	help:SetTextColor(0.5,0.5,0.5);
@@ -633,6 +671,15 @@ function RenderOptions()
 		self:ClearFocus()
 		if(IsShiftKeyDown()) then
 			raidsBox:SetAutoFocus(true)
+		else
+			otherBox:SetAutoFocus(true)
+		end
+	end)
+	otherBox:SetScript("OnTabPressed", function(self)
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+		if(IsShiftKeyDown()) then
+			raidsRolesBox:SetAutoFocus(true)
 		else
 			channelsBox:SetAutoFocus(true)
 		end
@@ -703,6 +750,7 @@ function RefreshValues()
 	dungeonsRolesBox:SetText(TableToString(GetCurrentValue("dungeons_roles")));
 	raidsBox:SetText(TableToString(GetCurrentValue("raids")));
 	raidsRolesBox:SetText(TableToString(GetCurrentValue("raids_roles")));
+	otherBox:SetText(TableToString(GetCurrentValue("other")));
 end
 
 function profilesDropdownInit(self, level)
@@ -723,7 +771,7 @@ end
 function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 	if(SavedChar["enabled"]) then
 		if(not CheckPlayerAuthor(author) and not CheckPlayerMention(msg) and CheckChannel(channel)) then
-			if(CheckBanned(msg) or (not CheckDungeons(msg) and not CheckRaids(msg))) then
+			if(CheckBanned(msg) or (not CheckDungeons(msg) and not CheckRaids(msg) or not CheckOther(msg))) then
 				return true
 			end
 		end
@@ -775,6 +823,10 @@ end
 function CheckRaids(msg)
 	return (not HasValues("raids_roles") or MatchAny(msg, GetCurrentValue("raids_roles")))
 			and (not HasValues("raids") or MatchAny(msg, GetCurrentValue("raids")))
+end
+
+function CheckOther(msg)
+	return not HasValues("other") or MatchAny(msg, GetCurrentValue("other"))
 end
 
 function MatchAny(source,testlist)
