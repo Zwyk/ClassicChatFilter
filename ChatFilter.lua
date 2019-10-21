@@ -22,6 +22,7 @@ exampleProfie =
 	["banned"] = {
 		"WTS", -- [1]
 		"www", -- [2]
+		"resa", -- [2]
 	},
 	["dungeons"] = {
 		"scholo", -- [1]
@@ -287,9 +288,12 @@ function RenderOptions()
 	welcomeText:SetTextColor(0.7,0.7,0.7);
 	welcomeText:SetJustifyH("LEFT");
 	welcomeText:SetWidth(590);
-	welcomeText:SetText("|cff939393Welcome"
-						.."\nblabla"
-						.."\n|cff939393An example setup is available by selecting the |cffffffffExample|cff939393 profile.")
+	welcomeText:SetText("|cffb3b3b3Welcome to ChatFilter!"
+						.."\n\nHere you can setup whitelisted and blacklisted keywords, separated by a |cffb3ffb3comma|cffb3b3b3 (|cffb3ffb3,|cffb3b3b3)."
+						.."\nThey are case insensitive and can contain spaces (or other special characters)."
+						.."\n\nSpecial |cffffffffDungeons|cffb3b3b3 and |cffffffffRaids|cffb3b3b3 whitelists can be |cffffb3b3combinated|cffb3b3b3 with their respective |cffffffffRoles|cffb3b3b3 for more accurate filtering."
+						.."\nExample : |cffb3b3ffscholo|cffb3b3b3 |cffffb3b3combinated|cffb3b3b3 with |cffb3b3fftank,dps|cffb3b3b3 would only show messages containing |cffb3b3ffscholo|cffb3b3b3 |cffffb3b3and|cffb3b3b3 (|cffb3b3fftank|cffb3b3b3 |cffb3ffb3or|cffb3b3b3 |cffb3b3ffdps|cffb3b3b3)."
+						.."\n\n|cffb3b3b3An example setup is available by selecting the |cffffffffExample|cffb3b3b3 profile.")
 
 	local profilesDropDownText = options:CreateFontString(nil, "ARTWORK","GameFontNormal");
 	profilesDropDownText:SetPoint("TOPLEFT", welcomeText, "BOTTOMLEFT", 0, -20);
@@ -382,15 +386,8 @@ function RenderOptions()
 		SetCurrentValue("show_player_mentions", self:GetChecked());
 	end)
 
-	local helpText1=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
-	helpText1:SetPoint("TOPLEFT", pmentionsButton, "BOTTOMLEFT", 0, -5);
-	helpText1:SetTextColor(0.7,0.7,0.7);
-	helpText1:SetJustifyH("LEFT");
-	helpText1:SetWidth(590);
-	helpText1:SetText("|cff939393Keywords have to be separated by a |cff93ff93comma|cff939393 (|cff93ff93,|cff939393).")
-
 	local channelsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
-	channelsBoxText:SetPoint("TOPLEFT", helpText1, "BOTTOMLEFT", 0, -10);
+	channelsBoxText:SetPoint("TOPLEFT", pmentionsButton, "BOTTOMLEFT", 0, -10);
 	channelsBoxText:SetText("Channels :");
 	channelsBox = CreateFrame("editbox", "cf_channelsBox", options, "InputBoxTemplate")
 	channelsBox:SetPoint("TOPLEFT", channelsBoxText, "BOTTOMLEFT", 0, 0);
@@ -419,7 +416,7 @@ function RenderOptions()
 	local channelsHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	channelsHelp:SetPoint("BOTTOMRIGHT", channelsBox,"TOPRIGHT",0,0);
 	channelsHelp:SetTextColor(0.7,0.7,0.7);
-	channelsHelp:SetText("Channels the filters will be applied to");
+	channelsHelp:SetText("Channels affected by the filters");
 	local channelsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	channelsTip:SetPoint("LEFT", channelsBox,"LEFT",0,0);
 	channelsTip:SetTextColor(1,1,1);
@@ -454,7 +451,7 @@ function RenderOptions()
 	local bannedHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	bannedHelp:SetPoint("BOTTOMRIGHT", bannedBox,"TOPRIGHT",0,0);
 	bannedHelp:SetTextColor(0.7,0.7,0.7);
-	bannedHelp:SetText("Blacklisted keywords will be always hidden");
+	bannedHelp:SetText("Messages with blacklisted keywords will be hidden");
 	local bannedTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	bannedTip:SetPoint("LEFT", bannedBox,"LEFT",0,0);
 	bannedTip:SetTextColor(1,1,1);
@@ -647,7 +644,7 @@ function RenderOptions()
 	bottomText:SetTextColor(0.7,0.7,0.7);
 	bottomText:SetJustifyH("LEFT");
 	bottomText:SetWidth(590);
-	bottomText:SetText("ChatFilter will later be updated to support custom advanced filters.")
+	bottomText:SetText("ChatFilter will later be updated to support advanced custom filters.")
 
 	channelsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
