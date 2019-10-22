@@ -21,8 +21,8 @@ exampleProfie =
 	},
 	["banned"] = {
 		"WTS", -- [1]
-		"www", -- [2]
-		"resa", -- [2]
+		"wtb", -- [2]
+		"www", -- [3]
 	},
 	["dungeons"] = {
 		"scholo", -- [1]
@@ -44,7 +44,7 @@ exampleProfie =
 	},
 }
 
-savedGlobalDefault =
+globalSettingsDefault =
 {
 	["profiles"] = {
 		["Default"] = defaultProfile,
@@ -52,136 +52,136 @@ savedGlobalDefault =
 	},
 }
 
-savedCharDefault =
+CharSettingsDefault =
 {
 	["enabled"] = true,
 	["profile"] = "Default"
 }
 
-local version = "1.0"
-local addonStr = "|cff009674ChatFilter|cffffffff"
+local version = "1.1.0"
+local addonStr = "|cff009674ClassicChatFilter|cffffffff"
 
-local cf = CreateFrame("Frame", addonName);
+local ccf = CreateFrame("Frame", addonName);
 local pname, pserver = UnitName("player");
 
-cf:RegisterEvent("VARIABLES_LOADED");
-cf:RegisterEvent("ADDON_LOADED");
+ccf:RegisterEvent("VARIABLES_LOADED");
+ccf:RegisterEvent("ADDON_LOADED");
 
-cf:SetScript("OnEvent", function(self, event, arg1) self[event](self, arg1) end);
+ccf:SetScript("OnEvent", function(self, event, arg1) self[event](self, arg1) end);
 
 function SlashHandler(arg)
 	if(arg == "help") then
 		print(addonStr.." available commands :")
-		print("/cf or /chatfilter to open the configuration panel.")
-		print("/cf disable to temporarily disable the addon.")
-		print("/cf enable to re-enable the addon.")
-		print("/cf toggle to toggle between enable and disable (useful for macros).")
+		print("/ccf or /classicchatfilter to open the configuration panel.")
+		print("/ccf disable to temporarily disable the addon.")
+		print("/ccf enable to re-enable the addon.")
+		print("/ccf toggle to toggle between enable and disable (useful for macros).")
 	elseif(arg == "enable") then
-		SavedChar.enabled = true
+		CharSettings.enabled = true
 		RefreshValues()
 		print(addonStr.." has been re-enabled.")
 	elseif(arg == "disable") then
-		SavedChar.enabled = true
+		CharSettings.enabled = true
 		RefreshValues()
 		print(addonStr.." has been temporarily disabled.")
 	elseif(arg == "toggle") then
-		SavedChar.enabled = not SavedChar.enabled
+		CharSettings.enabled = not CharSettings.enabled
 		RefreshValues()
-		print(addonStr.." has been toggled "..((SavedChar.enabled and "ON") or "OFF"))
+		print(addonStr.." has been toggled "..((CharSettings.enabled and "ON") or "OFF"))
 	else
-		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
-		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
-		InterfaceOptionsFrame_OpenToCategory("ChatFilter")
+		InterfaceOptionsFrame_OpenToCategory("ClassicChatFilter")
+		InterfaceOptionsFrame_OpenToCategory("ClassicChatFilter")
+		InterfaceOptionsFrame_OpenToCategory("ClassicChatFilter")
 	end
 end
 
-function cf:VARIABLES_LOADED()
-	--InitSavedGlobal()
-	--InitSavedChar()
+function ccf:VARIABLES_LOADED()
+	--InitGlobalSettings()
+	--InitCharSettings()
 end
 
-function cf:ADDON_LOADED(addon)
-    if(addon == "ChatFilter") then
-		SlashCmdList["CHATFILTER"] = SlashHandler;
-		SLASH_CHATFILTER1 = "/chatfilter";
-		SLASH_CHATFILTER2 = "/cf";
-		InitSavedGlobal()
-		InitSavedChar()
+function ccf:ADDON_LOADED(addon)
+    if(addon == "ClassicChatFilter") then
+		SlashCmdList["CLASSICCHATFILTER"] = SlashHandler;
+		SLASH_CLASSICCHATFILTER1 = "/classicchatfilter";
+		SLASH_CLASSICCHATFILTER2 = "/ccf";
+		InitGlobalSettings()
+		InitCharSettings()
 		CheckDefault()
 		CheckProfile()
 		RenderOptions()
-		print("|cff009674ChatFilter v"..version.." loaded. |cffffffffType /cf to configure.")
+		print("|cff009674ClassicChatFilter v"..version.." loaded. |cffffffffType /ccf to configure.")
     end
 end
 
 function CheckProfile()
-	if(not SavedGlobal["profiles"][SavedChar["profile"]]) then
-		SavedChar["profile"] = "Default"
+	if(not GlobalSettings["profiles"][CharSettings["profile"]]) then
+		CharSettings["profile"] = "Default"
 	end
 end
 
 function CheckDefault()
-	if(not SavedGlobal["profiles"]["Default"]) then
-		SavedGlobal["profiles"]["Default"] = defaultProfile
+	if(not GlobalSettings["profiles"]["Default"]) then
+		GlobalSettings["profiles"]["Default"] = defaultProfile
 	end
 end
 
-function InitSavedGlobal()
-    if(not SavedGlobal) then
-        SavedGlobal = DeepCopy(savedGlobalDefault)
+function InitGlobalSettings()
+    if(not GlobalSettings) then
+        GlobalSettings = DeepCopy(globalSettingsDefault)
     else
 	    -- copy defaults to conf if key not exists
-	    for k, v in pairs(savedGlobalDefault) do
-	        if(not SavedGlobal[k]) then
-	            SavedGlobal[k] = DeepCopy(savedGlobalDefault[k]);
+	    for k, v in pairs(globalSettingsDefault) do
+	        if(not GlobalSettings[k]) then
+	            GlobalSettings[k] = DeepCopy(globalSettingsDefault[k]);
 	        end
 	    end
 
 	    -- remove keys not in defaults anymore
-	    for k, v in pairs(SavedGlobal) do
-	        if(not savedGlobalDefault[k]) then
-	            SavedGlobal[k] = nil;
+	    for k, v in pairs(GlobalSettings) do
+	        if(not globalSettingsDefault[k]) then
+	            GlobalSettings[k] = nil;
 	        end
 	    end
     end
 end
 
-function InitSavedChar()
-    if (not SavedChar) then
-        SavedChar = DeepCopy(savedCharDefault)
+function InitCharSettings()
+    if (not CharSettings) then
+        CharSettings = DeepCopy(CharSettingsDefault)
     else
 	    -- copy defaults to conf if key not exists
-	    for k, v in pairs(savedCharDefault) do
-	        if (not SavedChar[k]) then
-	            SavedChar[k] = DeepCopy(savedCharDefault[k]);
+	    for k, v in pairs(CharSettingsDefault) do
+	        if (not CharSettings[k]) then
+	            CharSettings[k] = DeepCopy(CharSettingsDefault[k]);
 	        end
 	    end
 
 	    -- remove keys not in defaults anymore
-	    for k, v in pairs(SavedChar) do
-	        if (not savedCharDefault[k]) then
-	            SavedChar[k] = nil;
+	    for k, v in pairs(CharSettings) do
+	        if (not CharSettingsDefault[k]) then
+	            CharSettings[k] = nil;
 	        end
 	    end
 	end
 end
 
-StaticPopupDialogs["CHATFILTER_PROFILE_RENAME"] = {
+StaticPopupDialogs["CCF_PROFILE_RENAME"] = {
 	text = "Rename profile",
 	button1 = OKAY,
 	button2 = CANCEL,
 	OnShow = function(self)
 		self.editBox:SetScript("OnEnterPressed", function()
 			RenameProfile(self.editBox:GetText())
-			StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+			StaticPopup_Hide("CCF_PROFILE_RENAME")
 		end)
 		self.editBox:SetScript("OnEscapePressed", function()
-			StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+			StaticPopup_Hide("CCF_PROFILE_RENAME")
 		end)
 	end,
 	OnAccept = function(self)
 		RenameProfile(self.editBox:GetText())
-		StaticPopup_Hide("CHATFILTER_PROFILE_RENAME")
+		StaticPopup_Hide("CCF_PROFILE_RENAME")
 	end,
 	hasEditBox = true,
 	timeout = 0,
@@ -191,22 +191,22 @@ StaticPopupDialogs["CHATFILTER_PROFILE_RENAME"] = {
 	hideOnEscape = 1
 }
 
-StaticPopupDialogs["CHATFILTER_PROFILE_COPY"] = {
+StaticPopupDialogs["CCF_PROFILE_COPY"] = {
 	text = "New copied profile",
 	button1 = OKAY,
 	button2 = CANCEL,
 	OnShow = function(self)
 		self.editBox:SetScript("OnEnterPressed", function()
 			CopyProfile(self.editBox:GetText())
-			StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+			StaticPopup_Hide("CCF_PROFILE_COPY")
 		end)
 		self.editBox:SetScript("OnEscapePressed", function()
-			StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+			StaticPopup_Hide("CCF_PROFILE_COPY")
 		end)
 	end,
 	OnAccept = function(self)
 		CopyProfile(self.editBox:GetText())
-		StaticPopup_Hide("CHATFILTER_PROFILE_COPY")
+		StaticPopup_Hide("CCF_PROFILE_COPY")
 	end,
 	hasEditBox = true,
 	timeout = 0,
@@ -216,22 +216,22 @@ StaticPopupDialogs["CHATFILTER_PROFILE_COPY"] = {
 	hideOnEscape = 1
 }
 
-StaticPopupDialogs["CHATFILTER_PROFILE_ADD"] = {
+StaticPopupDialogs["CCF_PROFILE_ADD"] = {
 	text = "New profile",
 	button1 = OKAY,
 	button2 = CANCEL,
 	OnShow = function(self)
 		self.editBox:SetScript("OnEnterPressed", function()
 			CreateProfile(self.editBox:GetText())
-			StaticPopup_Hide("CHATFILTER_PROFILE_ADD")
+			StaticPopup_Hide("CCF_PROFILE_ADD")
 		end)
 		self.editBox:SetScript("OnEscapePressed", function()
-			StaticPopup_Hide("CHATFILTER_PROFILE_ADD")
+			StaticPopup_Hide("CCF_PROFILE_ADD")
 		end)
 	end,
 	OnAccept = function(self)
 		CreateProfile(self.editBox:GetText())
-		StaticPopup_Hide("CHATFILTER_PROFILE_ADD")
+		StaticPopup_Hide("CCF_PROFILE_ADD")
 	end,
 	hasEditBox = true,
 	timeout = 0,
@@ -241,13 +241,13 @@ StaticPopupDialogs["CHATFILTER_PROFILE_ADD"] = {
 	hideOnEscape = 1
 }
 
-StaticPopupDialogs["CHATFILTER_PROFILE_DELETE"] = {
+StaticPopupDialogs["CCF_PROFILE_DELETE"] = {
 	text = "Delete profile ?",
 	button1 = DELETE,
 	button2 = CANCEL,
 	OnAccept = function(self)
 		DeleteCurrentProfile()
-		StaticPopup_Hide("CHATFILTER_PROFILE_DELETE")
+		StaticPopup_Hide("CCF_PROFILE_DELETE")
 	end,
 	timeout = 0,
 	exclusive = 0,
@@ -260,8 +260,11 @@ function RenderOptions()
 	local leftMargin = 20
 	local topMargin = -20
 
-	local options = CreateFrame("FRAME","cf_options");
-	options.name = "ChatFilter";
+	local options = CreateFrame("FRAME","ccf_options");
+	options.name = "ClassicChatFilter";
+	options:SetScript("OnLoad", function(self)
+		RefreshValues()
+	end);
 	options:SetScript("OnShow", function(self)
 		RefreshValues()
 	end);
@@ -269,18 +272,18 @@ function RenderOptions()
 
 	local header = options:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 	header:SetPoint("TOPLEFT", leftMargin, topMargin);
-	header:SetText("ChatFilter");
+	header:SetText("ClassicChatFilter");
 	local ver=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	ver:SetPoint("BOTTOMLEFT",header,"BOTTOMRIGHT",1,0);
 	ver:SetTextColor(0.7,0.7,0.7);
 	ver:SetText("v"..version);
 
-	enabledButton = CreateFrame("CheckButton", "cf_enabledButton", options, "ChatConfigCheckButtonTemplate");
+	enabledButton = CreateFrame("CheckButton", "ccf_enabledButton", options, "ChatConfigCheckButtonTemplate");
 	enabledButton:SetPoint("LEFT", ver, "RIGHT", 5, 0)
-	enabledButton.tooltip = "Enable the ChatFilter addon.";
+	enabledButton.tooltip = "Enable the ClassicChatFilter addon.";
 	_G[enabledButton:GetName().."Text"]:SetText("Enabled");
 	enabledButton:SetScript("OnClick", function(self)
-		SavedChar.enabled = self:GetChecked();
+		CharSettings.enabled = self:GetChecked();
 	end)
 
 	local welcomeText=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
@@ -288,7 +291,7 @@ function RenderOptions()
 	welcomeText:SetTextColor(0.7,0.7,0.7);
 	welcomeText:SetJustifyH("LEFT");
 	welcomeText:SetWidth(590);
-	welcomeText:SetText("|cffb3b3b3Welcome to ChatFilter!"
+	welcomeText:SetText("|cffb3b3b3Welcome to ClassicChatFilter!"
 						.."\n\nHere you can setup whitelisted and blacklisted keywords, separated by a |cffb3ffb3comma|cffb3b3b3 (|cffb3ffb3,|cffb3b3b3)."
 						.."\nThey are case insensitive and can contain spaces (or other special characters)."
 						.."\n\nSpecial |cffffffffDungeons|cffb3b3b3 and |cffffffffRaids|cffb3b3b3 whitelists can be |cffffb3b3combinated|cffb3b3b3 with their respective |cffffffffRoles|cffb3b3b3 for more accurate filtering."
@@ -298,19 +301,19 @@ function RenderOptions()
 	local profilesDropDownText = options:CreateFontString(nil, "ARTWORK","GameFontNormal");
 	profilesDropDownText:SetPoint("TOPLEFT", welcomeText, "BOTTOMLEFT", 0, -20);
 	profilesDropDownText:SetText("Profile selection");
-	profilesDropDown = L_Create_UIDropDownMenu("cf_profilesDropdown", options);
+	profilesDropDown = L_Create_UIDropDownMenu("ccf_profilesDropdown", options);
 	profilesDropDown:SetPoint("LEFT", profilesDropDownText, "RIGHT", 5, -4)
 	L_UIDropDownMenu_SetWidth(profilesDropDown, 150);
 	L_UIDropDownMenu_SetButtonWidth(profilesDropDown, 124);
 	L_UIDropDownMenu_JustifyText(profilesDropDown, "LEFT");
 	profilesDropDownText.tooltip = "Select the profile to use on this character."
 
-	renameProfileButton = CreateFrame("Button", "cf_renameProfileButton", options, "OptionsButtonTemplate");
+	renameProfileButton = CreateFrame("Button", "ccf_renameProfileButton", options, "OptionsButtonTemplate");
 	renameProfileButton:SetWidth(25)
 	renameProfileButton:SetPoint("LEFT", profilesDropDown, "RIGHT", 0, 2);
 	renameProfileButton.tooltipText = "Rename this profile.";
 	renameProfileButton:SetScript("OnClick", function(self)
-		StaticPopup_Show("CHATFILTER_PROFILE_RENAME")
+		StaticPopup_Show("CCF_PROFILE_RENAME")
 	end);
 	_G[renameProfileButton:GetName().."Text"]:SetText("R");
 	renameProfileButton.alwaysShowTooltip = true
@@ -322,12 +325,12 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 
-	copyProfileButton = CreateFrame("Button", "cf_copyProfileButton", options, "OptionsButtonTemplate");
+	copyProfileButton = CreateFrame("Button", "ccf_copyProfileButton", options, "OptionsButtonTemplate");
 	copyProfileButton:SetWidth(25)
 	copyProfileButton:SetPoint("LEFT", renameProfileButton, "RIGHT", 2, 0);
 	copyProfileButton.tooltipText = "Rename this profile.";
 	copyProfileButton:SetScript("OnClick", function(self)
-		StaticPopup_Show("CHATFILTER_PROFILE_COPY")
+		StaticPopup_Show("CCF_PROFILE_COPY")
 	end);
 	_G[copyProfileButton:GetName().."Text"]:SetText("C");
 	copyProfileButton.alwaysShowTooltip = true
@@ -339,11 +342,11 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 
-	newProfileButton = CreateFrame("Button", "cf_newProfileButton", options, "OptionsButtonTemplate");
+	newProfileButton = CreateFrame("Button", "ccf_newProfileButton", options, "OptionsButtonTemplate");
 	newProfileButton:SetWidth(25)
 	newProfileButton:SetPoint("LEFT", copyProfileButton, "RIGHT", 2, 0);
 	newProfileButton:SetScript("OnClick", function(self)
-		StaticPopup_Show("CHATFILTER_PROFILE_ADD")
+		StaticPopup_Show("CCF_PROFILE_ADD")
 	end);
 	_G[newProfileButton:GetName().."Text"]:SetText("+");
 	newProfileButton.alwaysShowTooltip = true
@@ -355,11 +358,11 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 	
-	deleteProfileButton = CreateFrame("Button", "cf_deleteProfileButton", options, "OptionsButtonTemplate");
+	deleteProfileButton = CreateFrame("Button", "ccf_deleteProfileButton", options, "OptionsButtonTemplate");
 	deleteProfileButton:SetWidth(25)
 	deleteProfileButton:SetPoint("LEFT", newProfileButton, "RIGHT", 2, 0);
 	deleteProfileButton:SetScript("OnClick", function(self)
-		StaticPopup_Show("CHATFILTER_PROFILE_DELETE")
+		StaticPopup_Show("CCF_PROFILE_DELETE")
 	end);
 	_G[deleteProfileButton:GetName().."Text"]:SetText("-");
 	deleteProfileButton.tooltipText = "Delete this profile."
@@ -370,7 +373,7 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 
-	pmessagesButton = CreateFrame("CheckButton", "cf_pmessagesButton", options, "ChatConfigCheckButtonTemplate");
+	pmessagesButton = CreateFrame("CheckButton", "ccf_pmessagesButton", options, "ChatConfigCheckButtonTemplate");
 	pmessagesButton:SetPoint("TOPLEFT", profilesDropDownText, "BOTTOMLEFT", 0, -20)
 	pmessagesButton.tooltip = "Always show your own messages.";
 	_G[pmessagesButton:GetName().."Text"]:SetText("Always show player's messages");
@@ -378,7 +381,7 @@ function RenderOptions()
 		SetCurrentValue("show_player_messages", self:GetChecked());
 	end)
 
-	pmentionsButton = CreateFrame("CheckButton", "cf_pmentionsButton", options, "ChatConfigCheckButtonTemplate");
+	pmentionsButton = CreateFrame("CheckButton", "ccf_pmentionsButton", options, "ChatConfigCheckButtonTemplate");
 	pmentionsButton:SetPoint("TOPLEFT", pmessagesButton, "BOTTOMLEFT", 0, 0)
 	pmentionsButton.tooltip = "Always show messages containing your character's name.";
 	_G[pmentionsButton:GetName().."Text"]:SetText("Always show player mentions");
@@ -389,7 +392,8 @@ function RenderOptions()
 	local channelsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	channelsBoxText:SetPoint("TOPLEFT", pmentionsButton, "BOTTOMLEFT", 0, -10);
 	channelsBoxText:SetText("Channels :");
-	channelsBox = CreateFrame("editbox", "cf_channelsBox", options, "InputBoxTemplate")
+	channelsBox = CreateFrame("editbox", "ccf_channelsBox", options, "InputBoxTemplate")
+	channelsBox:SetText(TableToString(GetCurrentValue("channels")));
 	channelsBox:SetPoint("TOPLEFT", channelsBoxText, "BOTTOMLEFT", 0, 0);
 	channelsBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	channelsBox:SetHeight(25)
@@ -424,7 +428,7 @@ function RenderOptions()
 	local bannedBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	bannedBoxText:SetPoint("TOPLEFT", channelsBox, "BOTTOMLEFT", 0, -5);
 	bannedBoxText:SetText("Blacklisted keywords :");
-	bannedBox = CreateFrame("editbox", "cf_bannedBox", options, "InputBoxTemplate")
+	bannedBox = CreateFrame("editbox", "ccf_bannedBox", options, "InputBoxTemplate")
 	bannedBox:SetPoint("TOPLEFT", bannedBoxText, "BOTTOMLEFT", 0, 0);
 	bannedBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	bannedBox:SetHeight(25)
@@ -459,7 +463,7 @@ function RenderOptions()
 	local dungeonsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	dungeonsBoxText:SetPoint("TOPLEFT", bannedBox, "BOTTOMLEFT", 0, -5);
 	dungeonsBoxText:SetText("Dungeons whitelist : ");
-	dungeonsBox = CreateFrame("editbox", "cf_dungeonsBox", options, "InputBoxTemplate")
+	dungeonsBox = CreateFrame("editbox", "ccf_dungeonsBox", options, "InputBoxTemplate")
 	dungeonsBox:SetPoint("TOPLEFT", dungeonsBoxText, "BOTTOMLEFT", 0, 0);
 	dungeonsBox:SetHeight(25)
 	dungeonsBox:SetWidth(250)
@@ -498,7 +502,7 @@ function RenderOptions()
 	local dungeonsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	dungeonsRolesBoxText:SetPoint("BOTTOMLEFT", dungeonsBox, "TOPRIGHT", 30, 0);
 	dungeonsRolesBoxText:SetText("Dungeon roles whitelist :");
-	dungeonsRolesBox = CreateFrame("editbox", "cf_dungeonsRolesBox", options, "InputBoxTemplate")
+	dungeonsRolesBox = CreateFrame("editbox", "ccf_dungeonsRolesBox", options, "InputBoxTemplate")
 	dungeonsRolesBox:SetPoint("TOPLEFT", dungeonsRolesBoxText, "BOTTOMLEFT", 0, 0);
 	dungeonsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	dungeonsRolesBox:SetHeight(25)
@@ -533,7 +537,7 @@ function RenderOptions()
 	local raidsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	raidsBoxText:SetPoint("TOPLEFT", dungeonsBox, "BOTTOMLEFT", 0, -5);
 	raidsBoxText:SetText("Raids whitelist : ");
-	raidsBox = CreateFrame("editbox", "cf_raidsBox", options, "InputBoxTemplate")
+	raidsBox = CreateFrame("editbox", "ccf_raidsBox", options, "InputBoxTemplate")
 	raidsBox:SetPoint("TOPLEFT", raidsBoxText, "BOTTOMLEFT", 0, 0);
 	raidsBox:SetHeight(25)
 	raidsBox:SetWidth(250)
@@ -572,7 +576,7 @@ function RenderOptions()
 	local raidsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	raidsRolesBoxText:SetPoint("BOTTOMLEFT", raidsBox, "TOPRIGHT", 30, 0);
 	raidsRolesBoxText:SetText("Raid roles whitelist :");
-	raidsRolesBox = CreateFrame("editbox", "cf_raidsRolesBox", options, "InputBoxTemplate")
+	raidsRolesBox = CreateFrame("editbox", "ccf_raidsRolesBox", options, "InputBoxTemplate")
 	raidsRolesBox:SetPoint("TOPLEFT", raidsRolesBoxText, "BOTTOMLEFT", 0, 0);
 	raidsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	raidsRolesBox:SetHeight(25)
@@ -607,7 +611,7 @@ function RenderOptions()
 	local otherBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	otherBoxText:SetPoint("TOPLEFT", raidsBox, "BOTTOMLEFT", 0, -5);
 	otherBoxText:SetText("Other whitelisted keywords :");
-	otherBox = CreateFrame("editbox", "cf_otherBox", options, "InputBoxTemplate")
+	otherBox = CreateFrame("editbox", "ccf_otherBox", options, "InputBoxTemplate")
 	otherBox:SetPoint("TOPLEFT", otherBoxText, "BOTTOMLEFT", 0, 0);
 	otherBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	otherBox:SetHeight(25)
@@ -644,7 +648,7 @@ function RenderOptions()
 	bottomText:SetTextColor(0.7,0.7,0.7);
 	bottomText:SetJustifyH("LEFT");
 	bottomText:SetWidth(590);
-	bottomText:SetText("ChatFilter will later be updated to support advanced custom filters.")
+	bottomText:SetText("ClassicChatFilter will later be updated to support advanced custom filters.")
 
 	channelsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
@@ -783,13 +787,13 @@ function RenderOptions()
 		end
 	end)
 
-	SetProfile(SavedChar["profile"])
+	SetProfile(CharSettings["profile"])
 end
 
 function RenameProfile(val)
-	if(#val > 0 and not SavedGlobal["profiles"][val]) then
-		SavedGlobal["profiles"][val] = DeepCopy(SavedGlobal["profiles"][SavedChar["profile"]])
-		SavedGlobal["profiles"][SavedChar["profile"]] = nil
+	if(#val > 0 and not GlobalSettings["profiles"][val]) then
+		GlobalSettings["profiles"][val] = DeepCopy(GlobalSettings["profiles"][CharSettings["profile"]])
+		GlobalSettings["profiles"][CharSettings["profile"]] = nil
 		SetProfile(val)
 		RefreshValues()
 	else
@@ -798,8 +802,8 @@ function RenameProfile(val)
 end
 
 function CopyProfile(val)
-	if(#val > 0 and not SavedGlobal["profiles"][val]) then
-		SavedGlobal["profiles"][val] = DeepCopy(SavedGlobal["profiles"][SavedChar["profile"]])
+	if(#val > 0 and not GlobalSettings["profiles"][val]) then
+		GlobalSettings["profiles"][val] = DeepCopy(GlobalSettings["profiles"][CharSettings["profile"]])
 		SetProfile(val)
 		RefreshValues()
 	else
@@ -808,8 +812,8 @@ function CopyProfile(val)
 end
 
 function CreateProfile(val)
-	if(#val > 0 and not SavedGlobal["profiles"][val]) then
-		SavedGlobal["profiles"][val] = DeepCopy(defaultProfile)
+	if(#val > 0 and not GlobalSettings["profiles"][val]) then
+		GlobalSettings["profiles"][val] = DeepCopy(defaultProfile)
 		SetProfile(val)
 		RefreshValues()
 	else
@@ -818,7 +822,7 @@ function CreateProfile(val)
 end
 
 function DeleteCurrentProfile()
-	SavedGlobal["profiles"][SavedChar["profile"]] = nil
+	GlobalSettings["profiles"][CharSettings["profile"]] = nil
 	SetProfile("Default")
 	RefreshValues()
 end
@@ -827,7 +831,7 @@ function SetProfile(val,noinit)
 	if(not noinit) then 
 		L_UIDropDownMenu_Initialize(profilesDropDown, profilesDropdownInit);
 	end
-	SavedChar["profile"] = val;
+	CharSettings["profile"] = val;
 	L_UIDropDownMenu_SetSelectedValue(profilesDropDown, val);
 	if(val == "Default") then
 		renameProfileButton:Disable()
@@ -839,7 +843,7 @@ function SetProfile(val,noinit)
 end
 
 function RefreshValues()
-	enabledButton:SetChecked(SavedChar.enabled);
+	enabledButton:SetChecked(CharSettings.enabled);
 	pmessagesButton:SetChecked(GetCurrentValue("show_player_messages"));
 	pmentionsButton:SetChecked(GetCurrentValue("show_player_mentions"));
 	channelsBox:SetText(TableToString(GetCurrentValue("channels")));
@@ -852,7 +856,7 @@ function RefreshValues()
 end
 
 function profilesDropdownInit(self, level)
-	for key, value in pairs(SavedGlobal["profiles"]) do
+	for key, value in pairs(GlobalSettings["profiles"]) do
 		local info;
 		info = L_UIDropDownMenu_CreateInfo();
 		info.text = key;
@@ -867,7 +871,7 @@ function profilesDropdownInit(self, level)
 end
 
 function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
-	if(SavedChar["enabled"]) then
+	if(CharSettings["enabled"]) then
 		if(CheckChannel(channel)) then
 			if(CheckPlayerAuthor(author) or CheckPlayerMention(msg)) then
 				return false
@@ -884,15 +888,15 @@ function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 end
 
 function GetCurrentValue(key)
-	return SavedGlobal["profiles"][SavedChar["profile"]][key]
+	return GlobalSettings["profiles"][CharSettings["profile"]][key]
 end
 
 function SetCurrentValue(key,val)
-	SavedGlobal["profiles"][SavedChar["profile"]][key] = val
+	GlobalSettings["profiles"][CharSettings["profile"]][key] = val
 end
 
 function HasValues(key)
-	return #SavedGlobal["profiles"][SavedChar["profile"]][key] ~= 0
+	return #GlobalSettings["profiles"][CharSettings["profile"]][key] ~= 0
 end
 
 function CheckPlayerAuthor(author)
