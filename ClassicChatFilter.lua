@@ -32,6 +32,8 @@ exampleProfie =
 		"tank", -- [1]
 	},
 	["raids"] = {
+		"mc", -- [1]
+		"molten core", -- [2]
 		"onyxia", -- [3]
 	},
 	["raids_roles"] = {
@@ -123,7 +125,7 @@ end
 
 function CheckDefault()
 	if(not GlobalSettings["profiles"]["Default"]) then
-		GlobalSettings["profiles"]["Default"] = defaultProfile
+		GlobalSettings["profiles"]["Default"] = DeepCopy(defaultProfile)
 	end
 end
 
@@ -133,14 +135,14 @@ function InitGlobalSettings()
     else
 	    -- copy defaults to conf if key not exists
 	    for k, v in pairs(globalSettingsDefault) do
-	        if(not GlobalSettings[k]) then
+	        if(GlobalSettings[k] == nil) then
 	            GlobalSettings[k] = DeepCopy(globalSettingsDefault[k]);
 	        end
 	    end
 
 	    -- remove keys not in defaults anymore
 	    for k, v in pairs(GlobalSettings) do
-	        if(not globalSettingsDefault[k]) then
+	        if(globalSettingsDefault[k] == nil) then
 	            GlobalSettings[k] = nil;
 	        end
 	    end
@@ -153,14 +155,14 @@ function InitCharSettings()
     else
 	    -- copy defaults to conf if key not exists
 	    for k, v in pairs(CharSettingsDefault) do
-	        if (not CharSettings[k]) then
+	        if (CharSettings[k] == nil) then
 	            CharSettings[k] = DeepCopy(CharSettingsDefault[k]);
 	        end
 	    end
 
 	    -- remove keys not in defaults anymore
 	    for k, v in pairs(CharSettings) do
-	        if (not CharSettingsDefault[k]) then
+	        if (CharSettingsDefault[k] == nill) then
 	            CharSettings[k] = nil;
 	        end
 	    end
