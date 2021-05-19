@@ -8,6 +8,6 @@
 ## SavedVariables: GlobalSettings
 ## SavedVariablesPerCharacter: CharSettings
 ## X-Curse-Project-ID: 325069
-ClassicChatFilter.lua
 Libs\LibStub\LibStub.lua
 Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
+ClassicChatFilter.lua

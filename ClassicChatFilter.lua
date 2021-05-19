@@ -63,6 +63,8 @@ CharSettingsDefault =
 local version = "1.1.0"
 local addonStr = "|cff009674ClassicChatFilter|cffffffff"
 
+local LibDropDown = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+
 local ccf = CreateFrame("Frame", addonName);
 local pname, pserver = UnitName("player");
 
@@ -298,11 +300,11 @@ function RenderOptions()
 	local profilesDropDownText = options:CreateFontString(nil, "ARTWORK","GameFontNormal");
 	profilesDropDownText:SetPoint("TOPLEFT", welcomeText, "BOTTOMLEFT", 0, -20);
 	profilesDropDownText:SetText("Profile selection");
-	profilesDropDown = L_Create_UIDropDownMenu("ccf_profilesDropdown", options);
+	profilesDropDown = LibDropDown:Create_UIDropDownMenu("ccf_profilesDropdown", options);
 	profilesDropDown:SetPoint("LEFT", profilesDropDownText, "RIGHT", 5, -4)
-	L_UIDropDownMenu_SetWidth(profilesDropDown, 150);
-	L_UIDropDownMenu_SetButtonWidth(profilesDropDown, 124);
-	L_UIDropDownMenu_JustifyText(profilesDropDown, "LEFT");
+	LibDropDown:UIDropDownMenu_SetWidth(profilesDropDown, 150);
+	LibDropDown:UIDropDownMenu_SetButtonWidth(profilesDropDown, 124);
+	LibDropDown:UIDropDownMenu_JustifyText(profilesDropDown, "LEFT");
 	profilesDropDownText.tooltip = "Select the profile to use on this character."
 
 	renameProfileButton = CreateFrame("Button", "ccf_renameProfileButton", options, "OptionsButtonTemplate");
@@ -858,10 +860,10 @@ end
 
 function SetProfile(val,noinit)
 	if(not noinit) then 
-		L_UIDropDownMenu_Initialize(profilesDropDown, profilesDropdownInit);
+		LibDropDown:UIDropDownMenu_Initialize(profilesDropDown, profilesDropdownInit);
 	end
 	CharSettings["profile"] = val;
-	L_UIDropDownMenu_SetSelectedValue(profilesDropDown, val);
+	LibDropDown:UIDropDownMenu_SetSelectedValue(profilesDropDown, val);
 	if(val == "Default") then
 		renameProfileButton:Disable()
 		deleteProfileButton:Disable()
@@ -887,7 +889,7 @@ end
 function profilesDropdownInit(self, level)
 	for key, value in pairs(GlobalSettings["profiles"]) do
 		local info;
-		info = L_UIDropDownMenu_CreateInfo();
+		info = LibDropDown:UIDropDownMenu_CreateInfo();
 		info.text = key;
 		info.value = key;
 		info.arg1 = key;
@@ -895,7 +897,7 @@ function profilesDropdownInit(self, level)
 			SetProfile(self.value, true)
 			RefreshValues()
 		end
-		L_UIDropDownMenu_AddButton(info, level);
+		LibDropDown:UIDropDownMenu_AddButton(info, level);
 	end
 end
 
