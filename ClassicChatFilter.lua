@@ -6,6 +6,7 @@ defaultProfile =
 	["banned"] = {},
 	["dungeons"] = {},
 	["dungeons_roles"] = {},
+	["dungeons_types"] = {},
 	["raids"] = {},
 	["raids_roles"] = {},
 	["other"] = {},
@@ -30,6 +31,10 @@ exampleProfie =
 	},
 	["dungeons_roles"] = {
 		"tank", -- [1]
+	},
+	["dungeons_types"] = {
+		"nm", -- [1]
+		"hc", -- [2]
 	},
 	["raids"] = {
 		"mc", -- [1]
@@ -473,7 +478,7 @@ function RenderOptions()
 	dungeonsBox = CreateFrame("editbox", "ccf_dungeonsBox", options, "InputBoxTemplate")
 	dungeonsBox:SetPoint("TOPLEFT", dungeonsBoxText, "BOTTOMLEFT", 0, 0);
 	dungeonsBox:SetHeight(25)
-	dungeonsBox:SetWidth(250)
+	dungeonsBox:SetWidth(200)
 	dungeonsBox:SetAutoFocus(false)
 	dungeonsBox:ClearFocus()
 	dungeonsBox:SetScript("OnEscapePressed", function(self)
@@ -501,6 +506,7 @@ function RenderOptions()
 	local dungeonsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	dungeonsTip:SetPoint("LEFT", dungeonsBox,"LEFT",0,0);
 	dungeonsTip:SetTextColor(1,1,1);
+
 	local dungeonsAnd=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	dungeonsAnd:SetPoint("LEFT", dungeonsBox,"RIGHT", 2, 0);
 	dungeonsAnd:SetTextColor(0.7,0.7,0.7);
@@ -508,14 +514,15 @@ function RenderOptions()
 
 	local dungeonsRolesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	dungeonsRolesBoxText:SetPoint("BOTTOMLEFT", dungeonsBox, "TOPRIGHT", 30, 0);
-	dungeonsRolesBoxText:SetText("Dungeon roles whitelist :");
+	dungeonsRolesBoxText:SetText("Dungeon roles :");
 	dungeonsRolesCount=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	dungeonsRolesCount:SetPoint("BOTTOMLEFT", dungeonsRolesBoxText,"BOTTOMRIGHT", 4, 0);
 	dungeonsRolesCount:SetTextColor(0.7,1,0.7)
 	dungeonsRolesBox = CreateFrame("editbox", "ccf_dungeonsRolesBox", options, "InputBoxTemplate")
 	dungeonsRolesBox:SetPoint("TOPLEFT", dungeonsRolesBoxText, "BOTTOMLEFT", 0, 0);
-	dungeonsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
+	--dungeonsRolesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
 	dungeonsRolesBox:SetHeight(25)
+	dungeonsRolesBox:SetWidth(200)
 	dungeonsRolesBox:SetAutoFocus(false)
 	dungeonsRolesBox:ClearFocus()
 	dungeonsRolesBox:SetScript("OnEscapePressed", function(self)
@@ -543,6 +550,50 @@ function RenderOptions()
 	local dungeonsRolesTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	dungeonsRolesTip:SetPoint("LEFT", dungeonsRolesBox,"LEFT",0,0);
 	dungeonsRolesTip:SetTextColor(1,1,1);
+
+	local dungeonsRolesAnd=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	dungeonsRolesAnd:SetPoint("LEFT", dungeonsRolesBox,"RIGHT", 2, 0);
+	dungeonsRolesAnd:SetTextColor(0.7,0.7,0.7);
+	dungeonsRolesAnd:SetText("|cffff9393and|cff939393");
+
+
+	local dungeonsTypesBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
+	dungeonsTypesBoxText:SetPoint("BOTTOMLEFT", dungeonsRolesBox, "TOPRIGHT", 30, 0);
+	dungeonsTypesBoxText:SetText("Dungeon types :");
+	dungeonsTypesCount=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	dungeonsTypesCount:SetPoint("BOTTOMLEFT", dungeonsTypesBoxText,"BOTTOMRIGHT", 4, 0);
+	dungeonsTypesCount:SetTextColor(0.7,1,0.7)
+	dungeonsTypesBox = CreateFrame("editbox", "ccf_dungeonsTypeBox", options, "InputBoxTemplate")
+	dungeonsTypesBox:SetPoint("TOPLEFT", dungeonsTypesBoxText, "BOTTOMLEFT", 0, 0);
+	dungeonsTypesBox:SetHeight(25)
+	dungeonsTypesBox:SetPoint("RIGHT", options, "RIGHT", -10, 0)
+	dungeonsTypesBox:SetAutoFocus(false)
+	dungeonsTypesBox:ClearFocus()
+	dungeonsTypesBox:SetScript("OnEscapePressed", function(self)
+		SetCurrentValue("dungeons_types", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsTypesBox:SetScript("OnEnterPressed", function(self)
+		SetCurrentValue("dungeons_types", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsTypesBox:SetScript("OnEditFocusLost", function(self)
+		SetCurrentValue("dungeons_types", StringToTable(self:GetText()))
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+	end)
+	dungeonsTypesBox:SetScript("OnEditFocusGained", function(self)
+		self:SetAutoFocus(true)
+	end)
+	local dungeonsTypesHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
+	dungeonsTypesHelp:SetPoint("BOTTOMRIGHT", dungeonsTypesBox,"TOPRIGHT",0,0);
+	dungeonsTypesHelp:SetTextColor(0.7,0.7,0.7);
+	dungeonsTypesHelp:SetText("");
+	local dungeonsTypesTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
+	dungeonsTypesTip:SetPoint("LEFT", dungeonsTypesBox,"LEFT",0,0);
+	dungeonsTypesTip:SetTextColor(1,1,1);
 
 	local raidsBoxText = options:CreateFontString(nil, "ARTWORK","GameFontWhite");
 	raidsBoxText:SetPoint("TOPLEFT", dungeonsBox, "BOTTOMLEFT", 0, -5);
@@ -581,6 +632,7 @@ function RenderOptions()
 	local raidsTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	raidsTip:SetPoint("LEFT", raidsBox,"LEFT",0,0);
 	raidsTip:SetTextColor(1,1,1);
+
 	local raidsAnd=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	raidsAnd:SetPoint("LEFT", raidsBox,"RIGHT", 2, 0);
 	raidsAnd:SetTextColor(0.7,0.7,0.7);
@@ -657,7 +709,7 @@ function RenderOptions()
 	local otherHelp=options:CreateFontString(nil,"ARTWORK","GameFontNormalSmall");
 	otherHelp:SetPoint("BOTTOMRIGHT", otherBox,"TOPRIGHT",0,0);
 	otherHelp:SetTextColor(0.7,0.7,0.7);
-	otherHelp:SetText("");
+	otherHelp:SetText("Messages with whitelisted keywords will be displayed");
 	local otherTip=options:CreateFontString(nil,"ARTWORK","GameFontNormal");
 	otherTip:SetPoint("LEFT", otherBox,"LEFT",0,0);
 	otherTip:SetTextColor(1,1,1);
@@ -677,7 +729,7 @@ function RenderOptions()
 		self:SetAutoFocus(false)
 		self:ClearFocus()
 		if(IsShiftKeyDown()) then
-			raidsBox:SetAutoFocus(true)
+			otherBox:SetAutoFocus(true)
 		else
 			bannedBox:SetAutoFocus(true)
 		end
@@ -696,7 +748,7 @@ function RenderOptions()
 		if(IsShiftKeyDown()) then
 			channelsBox:SetAutoFocus(true)
 		else
-			dungeonsRolesBox:SetAutoFocus(true)
+			dungeonsBox:SetAutoFocus(true)
 		end
 	end)
 	bannedBox:SetScript("OnTextChanged", function(self)
@@ -721,12 +773,16 @@ function RenderOptions()
 		if(self:GetText() == "" and dungeonsRolesBox:GetText() == "") then
 			dungeonsTip:SetText("disabled")
 			dungeonsRolesTip:SetText("disabled")
+			dungeonsTypesTip:SetText("disabled")
 		elseif(self:GetText() == "") then
 			dungeonsTip:SetText("any")
 		else
 			dungeonsTip:SetText("")
 			if(dungeonsRolesBox:GetText() == "") then
 				dungeonsRolesTip:SetText("any")
+			end
+			if(dungeonsTypesBox:GetText() == "") then
+				dungeonsTypesTip:SetText("any")
 			end
 		end
 	end)
@@ -736,7 +792,7 @@ function RenderOptions()
 		if(IsShiftKeyDown()) then
 			dungeonsBox:SetAutoFocus(true)
 		else
-			raidsBox:SetAutoFocus(true)
+			dungeonsTypesBox:SetAutoFocus(true)
 		end
 	end)
 	dungeonsRolesBox:SetScript("OnTextChanged", function(self)
@@ -744,6 +800,7 @@ function RenderOptions()
 		if(self:GetText() == "" and dungeonsBox:GetText() == "") then
 			dungeonsTip:SetText("disabled")
 			dungeonsRolesTip:SetText("disabled")
+			dungeonsTypesTip:SetText("disabled")
 		elseif(self:GetText() == "") then
 			dungeonsRolesTip:SetText("any")
 		else
@@ -751,13 +808,43 @@ function RenderOptions()
 			if(dungeonsBox:GetText() == "") then
 				dungeonsTip:SetText("any")
 			end
+			if(dungeonsTypesBox:GetText() == "") then
+				dungeonsTypesTip:SetText("any")
+			end
+		end
+	end)
+	dungeonsTypesBox:SetScript("OnTabPressed", function(self)
+		self:SetAutoFocus(false)
+		self:ClearFocus()
+		if(IsShiftKeyDown()) then
+			dungeonsRolesBox:SetAutoFocus(true)
+		else
+			raidsBox:SetAutoFocus(true)
+		end
+	end)
+	dungeonsTypesBox:SetScript("OnTextChanged", function(self)
+		dungeonsTypesCount:SetText(#StringToTable(self:GetText()))
+		if(self:GetText() == "" and dungeonsBox:GetText() == "") then
+			dungeonsTip:SetText("disabled")
+			dungeonsRolesTip:SetText("disabled")
+			dungeonsTypesTip:SetText("disabled")
+		elseif(self:GetText() == "") then
+			dungeonsTypesTip:SetText("any")
+		else
+			dungeonsTypesTip:SetText("")
+			if(dungeonsBox:GetText() == "") then
+				dungeonsTip:SetText("any")
+			end
+			if(dungeonsRolesBox:GetText() == "") then
+				dungeonsRolesTip:SetText("any")
+			end
 		end
 	end)
 	raidsBox:SetScript("OnTabPressed", function(self)
 		self:SetAutoFocus(false)
 		self:ClearFocus()
 		if(IsShiftKeyDown()) then
-			dungeonsBox:SetAutoFocus(true)
+			dungeonsRolesBox:SetAutoFocus(true)
 		else
 			raidsRolesBox:SetAutoFocus(true)
 		end
@@ -881,6 +968,7 @@ function RefreshValues()
 	bannedBox:SetText(TableToString(GetCurrentValue("banned")));
 	dungeonsBox:SetText(TableToString(GetCurrentValue("dungeons")));
 	dungeonsRolesBox:SetText(TableToString(GetCurrentValue("dungeons_roles")));
+	dungeonsTypesBox:SetText(TableToString(GetCurrentValue("dungeons_types")));
 	raidsBox:SetText(TableToString(GetCurrentValue("raids")));
 	raidsRolesBox:SetText(TableToString(GetCurrentValue("raids_roles")));
 	otherBox:SetText(TableToString(GetCurrentValue("other")));
@@ -947,7 +1035,7 @@ function CheckAuthor(author,check)
 end
 
 function AtLeastOneFilter()
-	return HasValues("raids") or HasValues("raids_roles") or HasValues("dungeons") or HasValues("dungeons_roles") or HasValues("other")
+	return HasValues("raids") or HasValues("raids_roles") or HasValues("dungeons") or HasValues("dungeons_roles") or HasValues("dungeons_types") or HasValues("other")
 end
 
 function CheckChannel(channel)
@@ -959,9 +1047,12 @@ function CheckBanned(msg)
 end
 
 function CheckDungeons(msg)
-	return (HasValues("dungeons_roles") or HasValues("dungeons")) and
-			((not HasValues("dungeons_roles") or MatchAny(msg, GetCurrentValue("dungeons_roles")))
-			and (not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons"))))
+	return (HasValues("dungeons") or HasValues("dungeons_roles") or HasValues("dungeons_types")) and
+			(
+				(not HasValues("dungeons") or MatchAny(msg, GetCurrentValue("dungeons")))
+				and (not HasValues("dungeons_roles") or MatchAny(msg, GetCurrentValue("dungeons_roles")))
+				and (not HasValues("dungeons_types") or MatchAny(msg, GetCurrentValue("dungeons_types")))
+			)
 end
 
 function CheckRaids(msg)
