@@ -1007,7 +1007,8 @@ function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 end
 
 function GetCurrentValue(key)
-	return GlobalSettings["profiles"][CharSettings["profile"]][key] or {}
+	local val = GlobalSettings["profiles"][CharSettings["profile"]][key]
+	return val == nil and {} or val
 end
 
 function SetCurrentValue(key,val)
