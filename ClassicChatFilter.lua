@@ -1,5 +1,6 @@
 defaultProfile =
 {
+	["sound_alert"] = false,
 	["show_player_messages"] = true,
 	["show_player_mentions"] = true,
 	["channels"] = {"world","LookingForGroup"},
@@ -14,6 +15,7 @@ defaultProfile =
 
 exampleProfie =
 {
+	["sound_alert"] = false,
 	["show_player_messages"] = true,
 	["show_player_mentions"] = true,
 	["channels"] = {
@@ -377,8 +379,16 @@ function RenderOptions()
 		GameTooltip:Show()
 	end);
 
+	soundalertbutton = CreateFrame("CheckButton", "ccf_soundalertbutton", options, "ChatConfigCheckButtonTemplate");
+	soundalertbutton:SetPoint("TOPLEFT", profilesDropDownText, "BOTTOMLEFT", 0, -20)
+	soundalertbutton.tooltip = "Play a sound alert when a message goes through the filter";
+	_G[soundalertbutton:GetName().."Text"]:SetText("Play a sound alert when a message goes through the filter");
+	soundalertbutton:SetScript("OnClick", function(self)
+		SetCurrentValue("sound_alert", self:GetChecked());
+	end)
+
 	pmessagesButton = CreateFrame("CheckButton", "ccf_pmessagesButton", options, "ChatConfigCheckButtonTemplate");
-	pmessagesButton:SetPoint("TOPLEFT", profilesDropDownText, "BOTTOMLEFT", 0, -20)
+	pmessagesButton:SetPoint("TOPLEFT", soundalertbutton, "BOTTOMLEFT", 0, 0)
 	pmessagesButton.tooltip = "Always show your own messages.";
 	_G[pmessagesButton:GetName().."Text"]:SetText("Always show player's messages");
 	pmessagesButton:SetScript("OnClick", function(self)
@@ -962,6 +972,7 @@ end
 
 function RefreshValues()
 	enabledButton:SetChecked(CharSettings.enabled);
+	soundalertbutton:SetChecked(GetCurrentValue("sound_alert"));
 	pmessagesButton:SetChecked(GetCurrentValue("show_player_messages"));
 	pmentionsButton:SetChecked(GetCurrentValue("show_player_mentions"));
 	channelsBox:SetText(TableToString(GetCurrentValue("channels")));
@@ -992,11 +1003,15 @@ end
 function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 	if(CharSettings["enabled"]) then
 		if(CheckChannel(channel)) then
-			if(CheckPlayerAuthor(author) or CheckPlayerMention(msg)) then
+			if(CheckPlayerAuthor(author)) then
+				return false
+			elseif(CheckPlayerMention(msg)) then
+				PlayAlert()
 				return false
 			elseif(CheckBanned(msg)) then
 				return true
 			elseif(AtLeastOneFilter() and (CheckDungeons(msg) or CheckRaids(msg) or CheckOther(msg))) then
+				PlayAlert()
 				return false
 			else
 				return true
@@ -1006,9 +1021,17 @@ function Filter(self,event,msg,author,arg1,arg2,arg3,arg4,arg5,arg6,channel,...)
 	return false
 end
 
+function PlayAlert()
+	if(GetCurrentValue("sound_alert")) then PlaySound(12867, "Music") end
+end
+
 function GetCurrentValue(key)
 	local val = GlobalSettings["profiles"][CharSettings["profile"]][key]
-	return val == nil and {} or val
+	if val == nil then
+		val = defaultProfile[key]
+		SetCurrentValue(key,val)
+	end
+	return val
 end
 
 function SetCurrentValue(key,val)
