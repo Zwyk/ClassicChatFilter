@@ -1016,7 +1016,7 @@ function SetCurrentValue(key,val)
 end
 
 function HasValues(key)
-	return #GlobalSettings["profiles"][CharSettings["profile"]][key] ~= 0
+	return #GetCurrentValue(key) ~= 0
 end
 
 function CheckPlayerAuthor(author)
