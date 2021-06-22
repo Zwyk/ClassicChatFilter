@@ -101,6 +101,9 @@ function SlashHandler(arg)
 		CharSettings.enabled = not CharSettings.enabled
 		RefreshValues()
 		print(addonStr.." has been toggled "..((CharSettings.enabled and "ON") or "OFF"))
+	elseif(arg == "sound") then
+		SetCurrentValue("sound_alert", not GetCurrentValue("sound_alert"))
+		print(addonStr.." sound alert toggled "..((GetCurrentValue("sound_alert") and "ON") or "OFF"))
 	else
 		InterfaceOptionsFrame_OpenToCategory("ClassicChatFilter")
 		InterfaceOptionsFrame_OpenToCategory("ClassicChatFilter")
