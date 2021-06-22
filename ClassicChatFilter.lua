@@ -89,6 +89,7 @@ function SlashHandler(arg)
 		print("/ccf disable to temporarily disable the addon.")
 		print("/ccf enable to re-enable the addon.")
 		print("/ccf toggle to toggle between enable and disable (useful for macros).")
+		print("/ccf sound to toggle current profile's sound alert option.")
 	elseif(arg == "enable") then
 		CharSettings.enabled = true
 		RefreshValues()
